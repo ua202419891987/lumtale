@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LumTale — Private AI Cartoon Avatars, No Photo Upload</title>
+  <meta name="description" content="Create a private, stylized cartoon avatar from your photo. LumTale's Door 1 runs locally — your image never leaves your device. No-upload private AI profile pictures in the original Lumling style.">
+  <meta name="keywords" content="cartoon avatar no upload, private AI profile picture, local AI avatar generator, no-upload cartoon portrait, private AI headshot maker, on-device AI avatar, stylized avatar from photo, designer-toy style avatar, Lumling style avatar, AI pfp no data shared">
+  <meta name="author" content="LumTale">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#5a7d5a">
+  <link rel="canonical" href="https://lumtale.com/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="LumTale — Private AI Cartoon Avatars, No Photo Upload">
+  <meta property="og:description" content="A private, stylized cartoon avatar from your photo. Door 1 runs locally with zero upload. The Lumling style, done honestly.">
+  <meta property="og:url" content="https://lumtale.com/">
+  <meta property="og:site_name" content="LumTale">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="LumTale — Private AI Cartoon Avatars">
+  <meta name="twitter:description" content="Private, stylized cartoon avatars. Door 1 runs locally, no photo upload.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "name": "LumTale",
+        "url": "https://lumtale.com",
+        "description": "Private, stylized AI cartoon avatars. Door 1 runs locally with no photo upload; Door 2 uses a vetted GPU partner with honest disclosure."
+      },
+      {
+        "@type": "Organization",
+        "name": "LumTale",
+        "url": "https://lumtale.com",
+        "email": "hello@lumtale.com",
+        "description": "LumTale builds private AI avatar tools. Photos processed locally are never uploaded or used for training."
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root {
+      --bg: #f6f4ef;
+      --card: #ffffff;
+      --text: #3b3b3b;
+      --text-secondary: #6c6c6c;
+      --sage: #5a7d5a;
+      --sage-dark: #4a6b4a;
+      --caramel: #d4a574;
+      --caramel-light: #e8c9a8;
+      --border: #e8e6e0;
+      --shadow: rgba(0, 0, 0, 0.04);
+      --radius: 20px;
+      --radius-sm: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 80px 24px 48px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--sage);
+      margin-bottom: 48px;
+      letter-spacing: -0.02em;
+    }
+    .brand::before {
+      content: "";
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--caramel);
+    }
+
+    h1 {
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      line-height: 1.05;
+      margin-bottom: 24px;
+      color: #2c3e2c;
+      letter-spacing: -0.03em;
+    }
+    h1 span {
+      color: var(--caramel);
+    }
+
+    .lead {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      margin-bottom: 48px;
+      max-width: 640px;
+    }
+
+    .promise-bar {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 10px 18px;
+      font-size: 0.9rem;
+      color: var(--sage-dark);
+      margin-bottom: 32px;
+    }
+    .promise-bar::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--sage);
+    }
+
+    .doors {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin: 48px 0;
+    }
+
+    .door {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 32px;
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 30px var(--shadow);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+    .door::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+    }
+    .door.local::before { background: var(--sage); }
+    .door.cloud::before { background: var(--caramel); }
+
+    .door-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 16px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      width: fit-content;
+    }
+    .door.local .door-badge { background: #eef4ee; color: var(--sage-dark); }
+    .door.cloud .door-badge { background: #fdf6ee; color: #a67c52; }
+
+    .door h2 {
+      font-size: 1.5rem;
+      margin-bottom: 12px;
+      color: #2c3e2c;
+    }
+    .door p {
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+      flex-grow: 1;
+    }
+
+    .door-features {
+      list-style: none;
+      margin-bottom: 24px;
+    }
+    .door-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+    .door-features li::before {
+      content: "✓";
+      color: var(--sage);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .door.cloud .door-features li::before { color: var(--caramel); }
+
+    .door-status {
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      text-align: center;
+    }
+    .door.local .door-status { background: #eef4ee; color: var(--sage-dark); }
+    .door.cloud .door-status { background: #fdf6ee; color: #a67c52; }
+
+    .signup {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 40px 32px;
+      margin-top: 48px;
+      box-shadow: 0 8px 30px var(--shadow);
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+    .signup h2 {
+      font-size: 1.75rem;
+      margin-bottom: 12px;
+      color: #2c3e2c;
+    }
+    .signup > p {
+      color: var(--text-secondary);
+      margin-bottom: 28px;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .form {
+      max-width: 520px;
+      margin: 0 auto;
+      text-align: left;
+    }
+    .form-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .form input[type="email"] {
+      flex: 1;
+      min-width: 220px;
+      padding: 14px 18px;
+      border: 1px solid #d8d6d0;
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      outline: none;
+      font-family: inherit;
+    }
+    .form input[type="email"]:focus {
+      border-color: var(--sage);
+      box-shadow: 0 0 0 3px rgba(90, 125, 90, 0.1);
+    }
+    .form button {
+      padding: 14px 28px;
+      background: var(--sage);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s ease;
+    }
+    .form button:hover { background: var(--sage-dark); }
+    .form button:disabled { background: #a0a0a0; cursor: not-allowed; }
+
+    .turnstile-wrapper {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .privacy-note {
+      font-size: 0.8rem;
+      color: #999;
+      text-align: center;
+    }
+
+    .form-message {
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: var(--radius-sm);
+      display: none;
+      font-weight: 500;
+    }
+    .form-message.success { background: #eef4ee; color: var(--sage-dark); display: block; }
+    .form-message.error { background: #fff0f0; color: #c44; display: block; }
+
+    .faq {
+      margin-top: 64px;
+    }
+    .faq h2 {
+      font-size: 1.5rem;
+      color: #2c3e2c;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .faq-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .faq-item h3 {
+      font-size: 1.05rem;
+      color: #2c3e2c;
+      margin-bottom: 8px;
+    }
+    .faq-item p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    .why {
+      margin-top: 64px;
+    }
+    .why h2 {
+      font-size: 1.5rem;
+      color: #2c3e2c;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .why p {
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      max-width: 720px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .why strong { color: var(--text); }
+
+    footer {
+      text-align: center;
+      margin-top: 80px;
+      color: #999;
+      font-size: 0.875rem;
+    }
+    footer a { color: var(--text-secondary); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 600px) {
+      .container { padding: 60px 20px 40px; }
+      .form-row { flex-direction: column; }
+      .form input[type="email"], .form button { width: 100%; }
+      .door { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="brand">LumTale</div>
+
+    <div class="promise-bar">One promise: your photos are never used to train our models.</div>
+
+    <h1>Private AI portraits.<br>Two <span>doors</span>. Your choice.</h1>
+    <p class="lead">
+      LumTale reimagines your photos in the <strong>Lumling</strong> style — a warm, collectible look that feels like you without chasing realism. Pick the door that fits your privacy comfort.
+    </p>
+
+    <div class="doors">
+      <div class="door local">
+        <div class="door-badge">Door 1 — Local</div>
+        <h2>Lumling Studio: Local</h2>
+        <p>
+          Turn your photos into a soft, designer-toy inspired portrait. Everything runs in your browser — your image never leaves your device.
+        </p>
+        <ul class="door-features">
+          <li>100% local processing in your browser</li>
+          <li>Zero upload; open DevTools → Network to verify</li>
+          <li>Lumling cartoon / collectible-toy aesthetic</li>
+          <li>Free to try</li>
+        </ul>
+        <div class="door-status">Coming first — join the waitlist</div>
+      </div>
+
+      <div class="door cloud">
+        <div class="door-badge">Door 2 — Cloud</div>
+        <h2>Lumling Studio: Cloud</h2>
+        <p>
+          For a dream-painted, illustration-quality result, your photo is sent to a GPU partner. We never train on it; the partner's policy is linked below.
+        </p>
+        <ul class="door-features">
+          <li>Higher fidelity, premium Lumling render</li>
+          <li>Honest upload to a vetted GPU partner</li>
+          <li>We do not store or train on your images</li>
+          <li>Pay per creation</li>
+        </ul>
+        <div class="door-status">Launching after Door 1</div>
+      </div>
+    </div>
+
+    <section class="why" aria-label="Why private AI avatars">
+      <h2>Why a private, no-upload cartoon avatar?</h2>
+      <p>
+        Most AI avatar tools send your selfie to a server you can't see. LumTale is built the other way around. With Door 1, your photo becomes a <strong>stylized cartoon avatar</strong> entirely on your device — a true <strong>private AI profile picture</strong> that never travels across the network. No upload, no training, no surprises.
+      </p>
+      <p>
+        When you want a more refined result, Door 2 sends the image to a vetted GPU partner for a premium <strong>Lumling</strong> render. We're upfront about it: you'll always know your photo is leaving your device, and we never store or train on it. That honesty is the whole point of a <strong>local AI avatar generator</strong> you can actually trust.
+      </p>
+    </section>
+
+    <div class="signup">
+      <h2>Get early access</h2>
+      <p>Be the first to try Lumling Studio. We'll email you when Door 1 is ready and keep you posted on Door 2.</p>
+
+      <form class="form" id="waitlist-form" action="/waitlist" method="POST">
+        <div class="form-row">
+          <input type="email" name="email" placeholder="you@example.com" required autocomplete="email">
+          <button type="submit" id="submit-btn">Join the waitlist</button>
+        </div>
+
+        <p class="privacy-note">
+          We'll only use your email to send LumTale early-access updates. No spam — unsubscribe anytime.
+        </p>
+      </form>
+
+      <div id="form-message" class="form-message"></div>
+    </div>
+
+    <div class="faq">
+      <h2>What makes LumTale different?</h2>
+
+      <div class="faq-item">
+        <h3>What is the Lumling style?</h3>
+        <p>
+          Lumling is our own take on a warm, stylized portrait look: soft shapes, gentle colors, and a collectible-toy feel. We don't copy any existing artist or brand — Lumling is a new category we created for LumTale.
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>Is Door 1 really private?</h3>
+        <p>
+          Yes. Door 1 runs entirely in your browser using local models. Your photo is not uploaded to our servers or any third party. You can verify this by opening your browser's DevTools and watching the Network tab: zero outbound image traffic.
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>What happens if I use Door 2?</h3>
+        <p>
+          Door 2 sends your photo to a GPU partner to generate a higher-quality Lumling portrait. We do not store or train on your images, and we link to the partner's data-use policy before you upload. We believe you deserve to know exactly where your photo goes.
+        </p>
+      </div>
+    </div>
+
+    <footer>
+      <p>© 2026 LumTale. Built for people who value their privacy.</p>
+      <p style="margin-top:8px;">
+        <a href="#waitlist-form">Waitlist</a> ·
+        <a href="mailto:hello@lumtale.com">hello@lumtale.com</a>
+      </p>
+    </footer>
+  </div>
+
+  <script>
+    console.log('%c🔒 LumTale', 'color:#5a7d5a;font-weight:bold', '— Door 1 will run with zero upload. When it ships, open DevTools → Network to confirm: no outbound image requests.');
+
+    const form = document.getElementById('waitlist-form');
+    const message = document.getElementById('form-message');
+    const submitBtn = document.getElementById('submit-btn');
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Joining...';
+      message.style.display = 'none';
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { 'Accept': 'application/json' }
+        });
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          form.reset();
+          form.style.display = 'none';
+          message.textContent = 'You\'re on the list. We\'ll reach out when Lumling Studio is ready.';
+          message.className = 'form-message success';
+        } else {
+          throw new Error(data.message || 'Submission failed');
+        }
+      } catch (err) {
+        message.textContent = 'Something went wrong. Please try again or email hello@lumtale.com.';
+        message.className = 'form-message error';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Join the waitlist';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+# Cloudflare API Token — 绝不能进仓库（含部署权限）
+cf_token.txt
+# GitHub PAT — 临时用，绝不能进仓库
+gh_token.txt
+
+# 早期打包失败的垃圾文件
+index.7z
+lumtale-deploy.zip
+*.zip
+
+# 系统/编辑器
+.DS_Store
+Thumbs.db
