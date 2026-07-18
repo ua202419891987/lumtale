@@ -113,6 +113,11 @@
 
     input[type="file"] { display: none; }
     input[type="range"] { flex: 1; }
+    select {
+      font-family: inherit; font-size: 0.9rem; padding: 8px 12px;
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      background: #fff; color: var(--text); cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -144,6 +149,13 @@
             <label>Lumling touch</label>
             <input type="range" id="lumling" min="0" max="100" value="35">
             <span id="lumling-val">35%</span>
+          </div>
+          <div class="row">
+            <label>Style</label>
+            <select id="style">
+              <option value="toy">Lumling Toy (pastel vinyl)</option>
+              <option value="soft">Lumling Soft (watercolor)</option>
+            </select>
           </div>
           <div class="row">
             <button class="btn-primary" id="generate" disabled>Generate cartoon</button>
@@ -258,25 +270,119 @@
       return canvas.convertToBlob();
     }
 
-    // ── Lumling touch: brighten + soft glow + pastel push ──
-    // (alternative-path post-filter so AnimeGAN's anime look leans toward designer-toy)
-    function applyLumlingTouch(blob, amount) {
+    // ── Face detection (best-effort, local only) ──────────────
+    // Uses native FaceDetector when available; otherwise returns null
+    // and callers fall back to a centered ellipse assumption.
+    async function detectFaceBox(source) {
+      if (!('FaceDetector' in window)) return null;
+      try {
+        const fd = new FaceDetector({ maxDetectedFaces: 1, fastMode: true });
+        const faces = await fd.detect(source);
+        if (faces && faces.length) {
+          const b = faces[0].boundingBox;
+          return { x: b.x, y: b.y, w: b.width, h: b.height };
+        }
+      } catch (e) { /* not supported / failed → fallback */ }
+      return null;
+    }
+
+    // Build an elliptical soft mask over the face region (protects nose/mouth).
+    // Returns a canvas with the base face feathered, transparent elsewhere.
+    function buildFaceMask(baseCanvas, faceBox) {
+      // Default: centered face, weighted slightly downward to cover nose + mouth.
+      let cx = SIZE * 0.50, cy = SIZE * 0.52, rx = SIZE * 0.32, ry = SIZE * 0.40;
+      if (faceBox) {
+        cx = faceBox.x + faceBox.w / 2;
+        cy = faceBox.y + faceBox.h * 0.58;      // bias to lower face (nose/mouth)
+        rx = faceBox.w * 0.62;
+        ry = faceBox.h * 0.70;
+      }
+      const mask = document.createElement('canvas');
+      mask.width = SIZE; mask.height = SIZE;
+      const mx = mask.getContext('2d');
+      mx.drawImage(baseCanvas, 0, 0);           // clean model output (sharp features)
+      mx.globalCompositeOperation = 'destination-in';
+      mx.save();
+      mx.translate(cx, cy);
+      mx.scale(rx / ry, 1);                      // turn radial gradient into ellipse
+      const rg = mx.createRadialGradient(0, 0, ry * 0.35, 0, 0, ry);
+      rg.addColorStop(0, 'rgba(0,0,0,1)');       // fully keep center (nose/mouth)
+      rg.addColorStop(0.7, 'rgba(0,0,0,0.9)');
+      rg.addColorStop(1, 'rgba(0,0,0,0)');       // feather out at edges
+      mx.fillStyle = rg;
+      mx.fillRect(-ry, -ry, ry * 2, ry * 2);
+      mx.restore();
+      return mask;
+    }
+
+    // ── Lumling touch 2.0 + Face-protect: pastel / vinyl / soft-watercolor ──
+    // (local-only post-processing; face region is restored so filters never
+    //  smear the nose/mouth — the model itself defines feature shape.)
+    function applyLumlingTouch(blob, amount, style) {
       return new Promise(async (resolve) => {
         const bmp = await createImageBitmap(blob);
+        // Keep a clean copy of the model output for face restoration.
+        const baseCanvas = document.createElement('canvas');
+        baseCanvas.width = SIZE; baseCanvas.height = SIZE;
+        baseCanvas.getContext('2d').drawImage(bmp, 0, 0);
+
         const canvas = document.createElement('canvas');
         canvas.width = SIZE; canvas.height = SIZE;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(bmp, 0, 0);
-        if (amount > 0) {
-          const a = amount / 100;
-          ctx.globalCompositeOperation = 'saturation';
-          ctx.fillStyle = `rgba(140,170,140,${0.25 * a})`;
+        if (amount <= 0) { canvas.toBlob(b => resolve(b), 'image/png'); return; }
+        const a = amount / 100;
+
+        // Base: desaturate slightly + lift brightness (pastel floor)
+        ctx.globalCompositeOperation = 'saturation';
+        ctx.fillStyle = `rgba(128,128,128,${0.30 * a})`;
+        ctx.fillRect(0, 0, SIZE, SIZE);
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.fillStyle = `rgba(255,250,240,${0.10 * a})`;
+        ctx.fillRect(0, 0, SIZE, SIZE);
+        ctx.globalCompositeOperation = 'source-over';
+
+        if (style === 'toy') {
+          // Pastel color wash (soft pink / mint)
+          ctx.globalCompositeOperation = 'soft-light';
+          ctx.fillStyle = `rgba(255,198,212,${0.20 * a})`;
           ctx.fillRect(0, 0, SIZE, SIZE);
+          // Vinyl gloss: radial highlight top-left
           ctx.globalCompositeOperation = 'lighter';
-          ctx.fillStyle = `rgba(255,244,224,${0.18 * a})`;
+          const g = ctx.createRadialGradient(SIZE*0.42, SIZE*0.36, 8, SIZE*0.42, SIZE*0.36, SIZE*0.55);
+          g.addColorStop(0, `rgba(255,255,255,${0.28 * a})`);
+          g.addColorStop(1, 'rgba(255,255,255,0)');
+          ctx.fillStyle = g;
+          ctx.fillRect(0, 0, SIZE, SIZE);
+          // Edge softening — much lighter now, and face is restored afterwards
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.filter = `blur(${0.3 * a}px)`;
+          ctx.drawImage(canvas, 0, 0);
+          ctx.filter = 'none';
+        } else if (style === 'soft') {
+          // Watercolor warm wash
+          ctx.globalCompositeOperation = 'soft-light';
+          ctx.fillStyle = `rgba(248,224,196,${0.18 * a})`;
+          ctx.fillRect(0, 0, SIZE, SIZE);
+          // Gentle glow
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.fillStyle = `rgba(255,246,230,${0.08 * a})`;
           ctx.fillRect(0, 0, SIZE, SIZE);
           ctx.globalCompositeOperation = 'source-over';
         }
+
+        // ── Face protection: restore sharp nose/mouth from the clean model output ──
+        try {
+          const faceBox = await detectFaceBox(baseCanvas);
+          const mask = buildFaceMask(baseCanvas, faceBox);
+          ctx.globalCompositeOperation = 'source-over';
+          // Blend clean face back; strength scales with filter amount so heavy
+          // filtering still keeps recognizable features.
+          ctx.globalAlpha = Math.min(0.9, 0.55 + 0.4 * a);
+          ctx.drawImage(mask, 0, 0);
+          ctx.globalAlpha = 1;
+        } catch (e) { /* if masking fails, keep filtered result */ }
+
         canvas.toBlob((b) => resolve(b), 'image/png');
       });
     }
@@ -286,6 +392,7 @@
     const dlBtn = document.getElementById('download');
     const lumling = document.getElementById('lumling');
     const lumlingVal = document.getElementById('lumling-val');
+    const styleSel = document.getElementById('style');
     const progressWrap = document.getElementById('progress-wrap');
     const progressFill = document.getElementById('progress-fill');
     const progressPct = document.getElementById('progress-pct');
@@ -362,8 +469,8 @@
         let blob = await postprocess(results['940']);
         const amt = parseInt(lumling.value, 10);
         if (amt > 0) {
-          log(`Applying Lumling touch (${amt}%)...`);
-          blob = await applyLumlingTouch(blob, amt);
+          log(`Applying Lumling ${styleSel.value} touch (${amt}%)...`);
+          blob = await applyLumlingTouch(blob, amt, styleSel.value);
         }
         resultBlob = blob;
 
