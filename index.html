@@ -215,6 +215,20 @@
     .door.local .door-status { background: #eef4ee; color: var(--sage-dark); }
     .door.cloud .door-status { background: #fdf6ee; color: #a67c52; }
 
+    .door-cta {
+      display: inline-block;
+      background: var(--sage);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 12px 22px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 16px;
+      transition: background 0.2s ease;
+    }
+    .door-cta:hover { background: var(--sage-dark); }
+
     .signup {
       background: var(--card);
       border-radius: var(--radius);
@@ -384,7 +398,8 @@
           <li>Lumling cartoon / collectible-toy aesthetic</li>
           <li>Free to try</li>
         </ul>
-        <div class="door-status">Coming first — join the waitlist</div>
+        <a class="door-cta" href="/door1.html">Try the live demo →</a>
+        <div class="door-status">Live now — runs on your device</div>
       </div>
 
       <div class="door cloud">
