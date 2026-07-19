@@ -8,6 +8,8 @@
 <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.min.js"></script>
 <!-- MediaPipe Selfie Segmentation (white-background prep) -->
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js" crossorigin="anonymous"></script>
+<!-- face-api.js for face detection + alignment (fixes tilted/bad-angle faces) -->
+<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 <style>
   :root { --bg:#0f1220; --card:#1a1f35; --accent:#7c5cff; --txt:#e8e8f0; --muted:#9aa0b5; }
   * { box-sizing: border-box; }
@@ -29,7 +31,7 @@
 </style>
 </head>
 <body>
-<h1>LumTale Door 1 · Photo2Cartoon Validation <span class="badge">A3 minimal test — no Lumling / no alignment</span></h1>
+<h1>LumTale Door 1 · Photo2Cartoon Validation <span class="badge">A3 validation — with face-api alignment</span></h1>
 <p class="sub">Purpose: confirm whether Photo2Cartoon ONNX preserves facial features when fed a white-background, center-cropped face. Upload a clear front-facing photo.</p>
 
 <div class="row">
@@ -78,6 +80,7 @@ let selfieSeg = null;
 let sourceImage = null;      // HTMLImageElement from upload
 let pendingCanvas = null;    // canvas after white-bg prep
 let hasResult = false;       // cartoon output produced
+let faceApiModelLoaded = false;
 
 const MODEL_URL = 'models/photo2cartoon_weights.onnx';
 const SIZE = 256;
@@ -109,6 +112,22 @@ async function loadSeg(){
   }
 }
 
+// ── Load face-api.js models (alignment) ─────
+async function loadFaceApi(){
+  if (typeof faceapi === 'undefined'){
+    log('face-api.js not loaded (script missing) — alignment disabled.', 'warn');
+    return;
+  }
+  try {
+    await faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/');
+    await faceapi.nets.faceLandmark68Net.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/');
+    faceApiModelLoaded = true;
+    log('face-api.js models loaded ✔ (alignment ON)', 'ok');
+  } catch(e){
+    log('face-api load failed: '+e.message+' — alignment disabled.', 'warn');
+  }
+}
+
 // Composite person over white background
 function onSegResults(results){
   const c = document.createElement('canvas');
@@ -130,6 +149,68 @@ function onSegResults(results){
   segCanvas.getContext('2d').drawImage(c,0,0);
   pendingCanvas = c;
   runInference(c);
+}
+
+// ── Face alignment (face-api.js) ──────────
+function centerOf(pts){ let x=0,y=0; for(const p of pts){ x+=p.x; y+=p.y; } return { x:x/pts.length, y:y/pts.length }; }
+
+async function detectAndAlignFace(inputCanvas){
+  if (typeof faceapi === 'undefined' || !faceApiModelLoaded){
+    log('face-api unavailable — skipping alignment.', 'warn');
+    return inputCanvas;
+  }
+  let detection;
+  try {
+    detection = await faceapi
+      .detectSingleFace(inputCanvas, new faceapi.TinyFaceDetectorOptions({ inputSize: 320 }))
+      .withFaceLandmarks();
+  } catch(e){
+    log('face-api detect error: '+e.message+' — no alignment.', 'warn');
+    return inputCanvas;
+  }
+  if (!detection){
+    log('No face detected — using whole image (no alignment).', 'warn');
+    return inputCanvas;
+  }
+  const leftEye = centerOf(detection.landmarks.getLeftEye());
+  const rightEye = centerOf(detection.landmarks.getRightEye());
+  const angle = Math.atan2(rightEye.y - leftEye.y, rightEye.x - leftEye.x) * 180 / Math.PI;
+
+  const W = inputCanvas.width, H = inputCanvas.height;
+  const rot = document.createElement('canvas'); rot.width = W; rot.height = H;
+  const rctx = rot.getContext('2d');
+  rctx.translate(W/2, H/2); rctx.rotate(angle * Math.PI / 180);
+  rctx.drawImage(inputCanvas, -W/2, -H/2);
+
+  const box = detection.detection.box;
+  const bcx = box.x + box.width/2, bcy = box.y + box.height/2;
+  const rad = angle * Math.PI / 180;
+  const ncx = (bcx - W/2)*Math.cos(rad) - (bcy - H/2)*Math.sin(rad) + W/2;
+  const ncy = (bcx - W/2)*Math.sin(rad) + (bcy - H/2)*Math.cos(rad) + H/2;
+
+  const padX = box.width * 0.3, padY = box.height * 0.45;
+  let x = Math.max(0, ncx - (box.width/2 + padX));
+  let y = Math.max(0, ncy - (box.height/2 + padY));
+  let w = Math.min(rot.width - x, box.width + padX*2);
+  let h = Math.min(rot.height - y, box.height + padY*2);
+
+  const face = document.createElement('canvas');
+  face.width = Math.max(1,Math.round(w)); face.height = Math.max(1,Math.round(h));
+  face.getContext('2d').drawImage(rot, x, y, w, h, 0, 0, face.width, face.height);
+  log('Face aligned (angle=' + angle.toFixed(1) + '°) & cropped ' + face.width + '×' + face.height, 'ok');
+  return face;
+}
+
+// Downscale to guard against MediaPipe OOM on large uploads
+function downscale(src, maxSide){
+  const w = src.width, h = src.height;
+  if (Math.max(w,h) <= maxSide) return src;
+  const s = maxSide / Math.max(w,h);
+  const c = document.createElement('canvas');
+  c.width = Math.round(w*s); c.height = Math.round(h*s);
+  c.getContext('2d').drawImage(src, 0,0, c.width, c.height);
+  log('Downscaled input → ' + c.width + '×' + c.height + ' (OOM guard).');
+  return c;
 }
 
 // ── Preprocess: RGB, resize SIZE, NCHW, [-1,1] ──
@@ -261,13 +342,19 @@ fileInput.addEventListener('change', async (e)=>{
 goBtn.addEventListener('click', async ()=>{
   if (!sourceImage) return;
   goBtn.disabled = true;
-  log('Starting validation...');
+  log('Starting validation (face-api alignment → white-bg → inference)...');
+  const base = downscale(sourceImage, 1024);
+  let aligned = base;
+  if (faceApiModelLoaded){
+    try { aligned = await detectAndAlignFace(base); }
+    catch(e){ log('Alignment error: '+e.message+' — using unaligned.', 'warn'); aligned = base; }
+  }
   if (selfieSeg){
-    try { await selfieSeg.send({ image: sourceImage }); }
-    catch(e){ log('Seg send failed: '+e.message+' — using raw image.', 'warn'); pendingCanvas=sourceImage; runInference(sourceImage); }
+    try { await selfieSeg.send({ image: aligned }); }
+    catch(e){ log('Seg send failed: '+e.message+' — using raw.', 'warn'); pendingCanvas=aligned; runInference(aligned); }
   } else {
-    pendingCanvas = sourceImage;
-    runInference(sourceImage);
+    pendingCanvas = aligned;
+    runInference(aligned);
   }
 });
 
@@ -277,6 +364,7 @@ document.getElementById('toy').addEventListener('click', ()=>renderStyled('toy')
 // ── Init ───────────────────────────────────
 (async ()=>{
   await loadModel();
+  await loadFaceApi();
   await loadSeg();
   if (!ortSession){ log('⚠ Model missing — drop photo2cartoon_weights.onnx into /models/ and re-push.', 'warn'); }
 })();
