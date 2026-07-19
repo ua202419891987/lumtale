@@ -367,7 +367,7 @@
             srcCanvas, new faceapi.TinyFaceDetectorOptions({ inputSize: 320 })
           );
           if (det) {
-            const b = det.detection.box;
+            const b = det.box;   // detectSingleFace returns FaceDetection directly
             const cx = b.x + b.width / 2, cy = b.y + b.height / 2;
             let side = Math.max(b.width, b.height) * 1.5;
             side = Math.min(side, Math.min(W, H) * 1.25);
