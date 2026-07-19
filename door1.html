@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LumTale — Private Watercolor Cartoon</title>
-  <meta name="description" content="Turn a photo into a hand-painted watercolor cartoon on your own device. Zero upload, zero server — the model runs in your browser via WebGPU.">
+  <title>LumTale — Private Line Art Portrait</title>
+  <meta name="description" content="Turn a photo into a clean line-art or pencil-sketch portrait on your own device. No AI model file, no upload, no server — pure in-browser canvas.">
   <meta name="robots" content="noindex">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -68,7 +68,8 @@
 
     .controls { margin-top: 16px; display: flex; flex-direction: column; gap: 12px; }
     .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .row label { font-size: 0.9rem; color: var(--text); }
+    .row label { font-size: 0.9rem; color: var(--text); min-width: 92px; }
+    .row .val { font-size: 0.82rem; color: var(--text-secondary); min-width: 42px; text-align: right; }
 
     .progress-wrap {
       display: none;
@@ -99,6 +100,8 @@
     .btn-ghost { background: #f1efe9; color: var(--text); }
     .btn-ghost:hover { background: #e7e4dc; }
     .btn-ghost:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-pro { background: var(--caramel); color: #fff; }
+    .btn-pro:hover { background: #c2935f; }
 
     .log {
       margin-top: 20px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.8rem;
@@ -110,6 +113,7 @@
 
     .note { font-size: 0.8rem; color: #999; margin-top: 24px; line-height: 1.5; }
     .note code { background: #efece5; padding: 1px 5px; border-radius: 4px; }
+    .tip { font-size: 0.82rem; color: var(--sage-dark); margin-top: 10px; }
 
     input[type="file"] { display: none; }
     input[type="range"] { flex: 1; }
@@ -126,11 +130,11 @@
     <div class="brand">LumTale</div>
     <div class="trust-bar">100% on-device — your photo never leaves this browser</div>
 
-    <h1>Private <span>Watercolor</span> Cartoon</h1>
+    <h1>Private <span>Line Art</span> Portrait</h1>
     <p class="sub">
-      Turn a photo into a hand-painted watercolor cartoon — entirely on your device.
-      No server, no upload, no training. Works best for kids, family &amp; pet portraits.
-      The model runs in your browser via WebGPU.
+      Turn a photo into a clean line-art or pencil-sketch portrait — entirely on your device.
+      No AI model file, no upload, no server. Pure in-browser canvas. Works for selfies,
+      pets, and even landscapes.
     </p>
 
     <div class="studio">
@@ -140,26 +144,33 @@
           <div class="hint" id="drop-hint">
             <strong>Drop a photo here</strong>
             or click to choose
-            <br><small>JPG / PNG · kids &amp; pets work best</small>
+            <br><small>JPG / PNG · front-facing &amp; simple background works best</small>
           </div>
           <img id="src-img" alt="source" style="display:none">
         </div>
         <input type="file" id="file" accept="image/*">
         <div class="controls">
           <div class="row">
-            <label>Lumling touch</label>
-            <input type="range" id="lumling" min="0" max="100" value="50">
-            <span id="lumling-val">50%</span>
-          </div>
-          <div class="row">
             <label>Style</label>
             <select id="style">
-              <option value="soft" selected>Lumling Soft — watercolor</option>
-              <option value="warm">Lumling Warm — storybook</option>
+              <option value="lineart" selected>Pure Line Art</option>
+              <option value="sketch">Pencil Sketch</option>
             </select>
           </div>
           <div class="row">
-            <button class="btn-primary" id="generate" disabled>Generate cartoon</button>
+            <label>Line weight</label>
+            <input type="range" id="thickness" min="0" max="100" value="55">
+            <span class="val" id="thickness-val">55%</span>
+          </div>
+          <div class="row">
+            <label>Background</label>
+            <select id="bg">
+              <option value="transparent" selected>Transparent (PNG)</option>
+              <option value="white">White</option>
+            </select>
+          </div>
+          <div class="row">
+            <button class="btn-primary" id="generate" disabled>Generate</button>
             <button class="btn-ghost" id="download" disabled>Download</button>
           </div>
           <div class="progress-wrap" id="progress-wrap">
@@ -172,35 +183,39 @@
       <div class="panel">
         <h2>Result</h2>
         <div class="drop" id="out-drop" style="background:#fafafa;">
-          <div class="hint" id="out-hint">Your cartoon will appear here</div>
+          <div class="hint" id="out-hint">Your portrait will appear here</div>
           <img id="out-img" alt="result" style="display:none">
         </div>
+        <p class="tip" id="tip">Tip: a clear, front-facing photo with even light gives the cleanest lines.</p>
       </div>
     </div>
 
-    <div class="log" id="log">loading models…</div>
+    <div class="log" id="log">ready.</div>
 
     <p class="note">
       <strong>How to verify zero upload:</strong> open DevTools (F12) → Network tab, then upload and generate.
-      You'll see the model file download once from this site, but <em>no outbound request containing your photo</em>.
-      All inference happens locally. The model is cached after first load, so repeat uses are offline-capable.
+      You'll see <em>no outbound request containing your photo</em> — everything runs locally on your device.
+      The optional face-detection library (face-api.js) loads from a CDN as JavaScript only; it is not your image,
+      and if it fails to load we simply use a centered crop instead.
     </p>
+
+    <div style="margin-top:28px; text-align:center;">
+      <a class="btn-pro" id="pro-link" href="/door2.html" style="text-decoration:none; display:inline-block;">Want a full color makeover? → LumTale Pro</a>
+    </div>
   </div>
 
-  <!-- ONNX Runtime Web -->
-  <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.min.js"></script>
-  <!-- MediaPipe Selfie Segmentation (white-background prep) -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js" crossorigin="anonymous"></script>
-  <!-- face-api.js for face detection + alignment (fixes tilted/bad-angle faces) -->
-  <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+  <!-- face-api.js is OPTIONAL: used only for smarter face cropping.
+       It is a JavaScript library (not your photo). If it fails to load,
+       we fall back to a centered crop and still produce a result. -->
+  <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js" crossorigin="anonymous"></script>
 
   <script>
+    "use strict";
+
     // ── Config ──────────────────────────────────────────────
-    // Photo2Cartoon (minivision) ONNX — same-origin, zero upload.
-    // Input: NCHW [1,3,256,256], RGB, normalized to [-1,1].
-    // Requires a white-background, center-cropped face (we prep it locally).
-    const MODEL_URL = "models/photo2cartoon_weights.onnx";
-    const SIZE = 256;
+    const FACEAPI_MODEL_BASE = "https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/";
+    const MAX_SRC_SIDE = 1024;   // cap original before detection (prevents OOM)
+    const MAX_PROC_SIDE = 768;   // working resolution for line detection
 
     const logEl = document.getElementById('log');
     function log(msg, cls) {
@@ -213,402 +228,288 @@
 
     // Trust easter egg
     console.log('%c🔒 LumTale Door 1', 'color:#5a7d5a;font-weight:bold',
-      '— zero upload confirmed. Open DevTools → Network: no outbound image traffic during inference.');
+      '— zero upload confirmed. Open DevTools → Network: no outbound image traffic during processing.');
 
     // ── State ──────────────────────────────────────────────
-    let ortSession = null;
-    let selfieSeg = null;
-    let sourceImage = null;       // HTMLImageElement from upload
-    let sourceLoaded = false;
-    let faceApiModelLoaded = false;
+    let sourceImage = null;
     let resultBlob = null;
+    let faceApiPromise = null;
 
-    // ── Load ONNX (lazy, on first generate) ───────────────
-    async function getSession() {
-      if (ortSession) return ortSession;
-      log('Loading model (~15 MB from this site, cached after first load)...');
-      setProgress(5, 'Loading model...');
-      ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/';
-      const buffer = await (await fetch(MODEL_URL)).arrayBuffer();
-      setProgress(45, 'Compiling model...');
-      const providers = [];
-      if (navigator.gpu) providers.push('webgpu');
-      providers.push('wasm');
-      try {
-        ortSession = await ort.InferenceSession.create(buffer, { executionProviders: providers });
-        log(navigator.gpu ? 'Model loaded (WebGPU active).' : 'Model loaded (WASM fallback).', 'ok');
-      } catch (e) {
-        ortSession = await ort.InferenceSession.create(buffer, { executionProviders: ['wasm'] });
-        log('Model loaded (WASM fallback).', 'ok');
-      }
-      setProgress(50, 'Model ready');
-      return ortSession;
+    // ── DOM ────────────────────────────────────────────────
+    const dropEl = document.getElementById('drop');
+    const dropHint = document.getElementById('drop-hint');
+    const srcImg = document.getElementById('src-img');
+    const fileInput = document.getElementById('file');
+    const styleSel = document.getElementById('style');
+    const thickness = document.getElementById('thickness');
+    const thicknessVal = document.getElementById('thickness-val');
+    const bgSel = document.getElementById('bg');
+    const genBtn = document.getElementById('generate');
+    const dlBtn = document.getElementById('download');
+    const outImg = document.getElementById('out-img');
+    const outHint = document.getElementById('out-hint');
+    const progressWrap = document.getElementById('progress-wrap');
+    const progressLabel = document.getElementById('progress-label');
+    const progressPct = document.getElementById('progress-pct');
+    const progressFill = document.getElementById('progress-fill');
+
+    // ── Progress helper ────────────────────────────────────
+    function setProgress(pct, label) {
+      progressWrap.classList.add('active');
+      progressFill.style.width = pct + '%';
+      progressPct.textContent = pct + '%';
+      if (label) progressLabel.textContent = label;
     }
 
-    // ── Load MediaPipe selfie segmentation ─────
-    async function loadSeg() {
-      try {
-        selfieSeg = new SelfieSegmentation({ locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${f}` });
-        selfieSeg.setOptions({ modelSelection: 1 });
-        selfieSeg.onResults(onSegResults);
-        log('SelfieSegmentation ready ✔');
-      } catch (e) {
-        log('SelfieSegmentation load failed: ' + e.message + ' — will run without white-bg.', 'warn');
-        selfieSeg = null;
-      }
+    function lockUI(locked) {
+      genBtn.disabled = locked || !sourceImage;
+      if (locked) genBtn.disabled = true;
     }
 
-    // ── Load face-api.js models (alignment) ─────
-    async function loadFaceApi() {
-      if (typeof faceapi === 'undefined') {
-        log('face-api.js not loaded — alignment disabled.', 'warn');
-        return;
-      }
-      try {
-        await faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/');
-        await faceapi.nets.faceLandmark68Net.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/');
-        faceApiModelLoaded = true;
-        log('face-api.js models loaded ✔ (alignment ON)', 'ok');
-      } catch (e) {
-        log('face-api load failed: ' + e.message + ' — alignment disabled.', 'warn');
-      }
+    // ── Upload wiring ─────────────────────────────────────
+    dropEl.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => { if (e.target.files[0]) loadFile(e.target.files[0]); });
+    ['dragover', 'dragenter'].forEach(ev => dropEl.addEventListener(ev, (e) => { e.preventDefault(); dropEl.classList.add('drag'); }));
+    ['dragleave', 'drop'].forEach(ev => dropEl.addEventListener(ev, (e) => { e.preventDefault(); dropEl.classList.remove('drag'); }));
+    dropEl.addEventListener('drop', (e) => {
+      const f = e.dataTransfer.files[0];
+      if (f && f.type.startsWith('image/')) loadFile(f);
+    });
+
+    function loadFile(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          sourceImage = img;
+          srcImg.src = img.src;
+          srcImg.style.display = 'block';
+          dropHint.style.display = 'none';
+          genBtn.disabled = false;
+          outImg.style.display = 'none';
+          outHint.style.display = 'block';
+          dlBtn.disabled = true;
+          log('Photo loaded — ' + img.width + '×' + img.height);
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
     }
 
-    // ── Composite person over white background (feathered, no pink edge) ──
-    function compositeWhiteBg(maskCanvas, imgCanvas) {
-      const w = imgCanvas.width, h = imgCanvas.height;
-      // feather the mask alpha so edges blend softly into white
-      const fmask = document.createElement('canvas');
-      fmask.width = w; fmask.height = h;
-      const fmctx = fmask.getContext('2d');
-      fmctx.filter = 'blur(5px)';
-      fmctx.drawImage(maskCanvas, 0, 0);
-      fmctx.filter = 'none';
-      const mdata = fmctx.getImageData(0, 0, w, h).data;
-      const img = imgCanvas.getContext('2d').getImageData(0, 0, w, h);
-      const d = img.data;
-      for (let i = 0; i < d.length; i += 4) {
-        let a = mdata[i + 3] / 255;                 // 0..1 mask confidence
-        a = Math.max(0, Math.min(1, (a - 0.35) / 0.30)); // soft threshold 0.35–0.65
-        d[i]     = Math.round(d[i]     * a + 255 * (1 - a));
-        d[i + 1] = Math.round(d[i + 1] * a + 255 * (1 - a));
-        d[i + 2] = Math.round(d[i + 2] * a + 255 * (1 - a));
-      }
+    thickness.addEventListener('input', () => { thicknessVal.textContent = thickness.value + '%'; });
+
+    // ── Canvas helpers ────────────────────────────────────
+    function makeCanvas(w, h) {
       const c = document.createElement('canvas');
       c.width = w; c.height = h;
-      c.getContext('2d').putImageData(img, 0, 0);
       return c;
     }
 
-    function onSegResults(results) {
-      const w = results.image.width, h = results.image.height;
-      const maskCanvas = document.createElement('canvas');
-      maskCanvas.width = w; maskCanvas.height = h;
-      maskCanvas.getContext('2d').drawImage(results.segmentationMask, 0, 0, w, h);
-      const imgCanvas = document.createElement('canvas');
-      imgCanvas.width = w; imgCanvas.height = h;
-      imgCanvas.getContext('2d').drawImage(results.image, 0, 0, w, h);
-      const comp = compositeWhiteBg(maskCanvas, imgCanvas);
-      runInference(comp);
-    }
-
-    // ── Face alignment (face-api.js) ──────────
-    function centerOf(pts) {
-      let x = 0, y = 0;
-      for (const p of pts) { x += p.x; y += p.y; }
-      return { x: x / pts.length, y: y / pts.length };
-    }
-
-    async function detectAndAlignFace(inputCanvas) {
-      if (typeof faceapi === 'undefined' || !faceApiModelLoaded) {
-        log('face-api unavailable — skipping alignment.', 'warn');
-        return inputCanvas;
-      }
-      let detection;
-      try {
-        detection = await faceapi
-          .detectSingleFace(inputCanvas, new faceapi.TinyFaceDetectorOptions({ inputSize: 320 }))
-          .withFaceLandmarks();
-      } catch (e) {
-        log('face-api detect error: ' + e.message + ' — no alignment.', 'warn');
-        return inputCanvas;
-      }
-      if (!detection) {
-        log('No face detected — using whole image (no alignment).', 'warn');
-        return inputCanvas;
-      }
-      const leftEye = centerOf(detection.landmarks.getLeftEye());
-      const rightEye = centerOf(detection.landmarks.getRightEye());
-      const angle = Math.atan2(rightEye.y - leftEye.y, rightEye.x - leftEye.x) * 180 / Math.PI;
-
-      const W = inputCanvas.width, H = inputCanvas.height;
-      const rot = document.createElement('canvas'); rot.width = W; rot.height = H;
-      const rctx = rot.getContext('2d');
-      rctx.translate(W / 2, H / 2); rctx.rotate(angle * Math.PI / 180);
-      rctx.drawImage(inputCanvas, -W / 2, -H / 2);
-
-      const box = detection.detection.box;
-      const bcx = box.x + box.width / 2, bcy = box.y + box.height / 2;
-      const rad = angle * Math.PI / 180;
-      const ncx = (bcx - W / 2) * Math.cos(rad) - (bcy - H / 2) * Math.sin(rad) + W / 2;
-      const ncy = (bcx - W / 2) * Math.sin(rad) + (bcy - H / 2) * Math.cos(rad) + H / 2;
-
-      const padX = box.width * 0.3, padY = box.height * 0.45;
-      let x = Math.max(0, ncx - (box.width / 2 + padX));
-      let y = Math.max(0, ncy - (box.height / 2 + padY));
-      let w = Math.min(rot.width - x, box.width + padX * 2);
-      let h = Math.min(rot.height - y, box.height + padY * 2);
-
-      const face = document.createElement('canvas');
-      face.width = Math.max(1, Math.round(w)); face.height = Math.max(1, Math.round(h));
-      face.getContext('2d').drawImage(rot, x, y, w, h, 0, 0, face.width, face.height);
-      log('Face aligned (angle=' + angle.toFixed(1) + '°) & cropped ' + face.width + '×' + face.height, 'ok');
-      return face;
-    }
-
-    // Downscale to guard against MediaPipe OOM on large uploads
     function downscale(src, maxSide) {
-      const w = src.width, h = src.height;
-      if (Math.max(w, h) <= maxSide) return src;
-      const s = maxSide / Math.max(w, h);
-      const c = document.createElement('canvas');
-      c.width = Math.round(w * s); c.height = Math.round(h * s);
-      c.getContext('2d').drawImage(src, 0, 0, c.width, c.height);
-      log('Downscaled input → ' + c.width + '×' + c.height + ' (OOM guard).');
-      return c;
-    }
-
-    // ── Preprocess: RGB, resize SIZE, NCHW, [-1,1] ──
-    function preprocess(canvas) {
-      const c = document.createElement('canvas'); c.width = SIZE; c.height = SIZE;
-      c.getContext('2d').drawImage(canvas, 0, 0, SIZE, SIZE);
-      const { data } = c.getContext('2d').getImageData(0, 0, SIZE, SIZE);
-      const nchw = new Float32Array(3 * SIZE * SIZE);
-      for (let h = 0; h < SIZE; h++) {
-        for (let w = 0; w < SIZE; w++) {
-          const i = (h * SIZE + w) * 4;
-          const r = data[i] / 127.5 - 1, g = data[i + 1] / 127.5 - 1, b = data[i + 2] / 127.5 - 1;
-          nchw[0 * SIZE * SIZE + h * SIZE + w] = r;
-          nchw[1 * SIZE * SIZE + h * SIZE + w] = g;
-          nchw[2 * SIZE * SIZE + h * SIZE + w] = b;
-        }
-      }
-      return new ort.Tensor('float32', nchw, [1, 3, SIZE, SIZE]);
-    }
-
-    // ── Postprocess: NCHW → RGBA, (x+1)/2*255 ──
-    function postprocess(tensor) {
-      const d = tensor.data;
-      const c = document.createElement('canvas'); c.width = SIZE; c.height = SIZE;
+      const sw = src.width || src.naturalWidth;
+      const sh = src.height || src.naturalHeight;
+      const scale = Math.min(1, maxSide / Math.max(sw, sh));
+      const w = Math.max(1, Math.round(sw * scale));
+      const h = Math.max(1, Math.round(sh * scale));
+      const c = makeCanvas(w, h);
       const ctx = c.getContext('2d');
-      const img = ctx.createImageData(SIZE, SIZE);
-      for (let h = 0; h < SIZE; h++) {
-        for (let w = 0; w < SIZE; w++) {
-          const o = (h * SIZE + w) * 4;
-          img.data[o]     = Math.max(0, Math.min(255, (d[0 * SIZE * SIZE + h * SIZE + w] + 1) * 127.5));
-          img.data[o + 1] = Math.max(0, Math.min(255, (d[1 * SIZE * SIZE + h * SIZE + w] + 1) * 127.5));
-          img.data[o + 2] = Math.max(0, Math.min(255, (d[2 * SIZE * SIZE + h * SIZE + w] + 1) * 127.5));
-          img.data[o + 3] = 255;
-        }
-      }
-      ctx.putImageData(img, 0, 0);
+      ctx.drawImage(src, 0, 0, w, h);
       return c;
     }
 
-    // ── Cute / watercolor post-processing (push toward "kids & pets" charm) ──
-    function applyCute(srcCanvas, amount, style) {
-      const OUT = 512; // upscale for a smoother, less pixelated result
-      const out = document.createElement('canvas');
-      out.width = OUT; out.height = OUT;
-      const ctx = out.getContext('2d');
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(srcCanvas, 0, 0, OUT, OUT);
+    function cropCanvas(src, box) {
+      const w = Math.max(1, Math.round(box.w));
+      const h = Math.max(1, Math.round(box.h));
+      const c = makeCanvas(w, h);
+      const ctx = c.getContext('2d');
+      ctx.drawImage(src, box.x, box.y, box.w, box.h, 0, 0, w, h);
+      return c;
+    }
 
-      const a = amount / 100;
-      let bright = 1 + 0.12 * a, sat = 1 + 0.20 * a;
-      if (style === 'warm') { bright += 0.04; sat += 0.05; }
-      if (style === 'soft') { sat -= 0.05; }
-      ctx.filter = `brightness(${bright}) saturate(${sat})`;
-      ctx.drawImage(out, 0, 0);
-      ctx.filter = 'none';
+    // ── Optional face-api (smart crop) ────────────────────
+    function ensureFaceApi() {
+      if (typeof faceapi === 'undefined') return Promise.resolve(false);
+      if (!faceApiPromise) {
+        faceApiPromise = (async () => {
+          try {
+            await faceapi.nets.tinyFaceDetector.loadFromUri(FACEAPI_MODEL_BASE);
+            return true;
+          } catch (e) {
+            log('face-api models failed: ' + e.message + ' — using centered crop.', 'warn');
+            return false;
+          }
+        })();
+      }
+      return faceApiPromise;
+    }
 
-      // soft cheek blush (lower-face sides)
-      ctx.globalCompositeOperation = 'soft-light';
-      const blush = 0.24 * a;
-      if (blush > 0) {
-        for (const [px, py] of [[0.38, 0.63], [0.62, 0.63]]) {
-          const r = ctx.createRadialGradient(OUT * px, OUT * py, 4, OUT * px, OUT * py, OUT * 0.13);
-          r.addColorStop(0, `rgba(255,150,175,${blush})`);
-          r.addColorStop(1, 'rgba(255,150,175,0)');
-          ctx.fillStyle = r; ctx.fillRect(0, 0, OUT, OUT);
+    async function getCropBox(srcCanvas) {
+      const W = srcCanvas.width, H = srcCanvas.height;
+      const ok = await ensureFaceApi();
+      if (ok) {
+        try {
+          const det = await faceapi.detectSingleFace(
+            srcCanvas, new faceapi.TinyFaceDetectorOptions({ inputSize: 320 })
+          );
+          if (det) {
+            const b = det.detection.box;
+            const cx = b.x + b.width / 2, cy = b.y + b.height / 2;
+            let side = Math.max(b.width, b.height) * 1.5;
+            side = Math.min(side, Math.min(W, H) * 1.25);
+            let x = cx - side / 2, y = cy - side / 2;
+            x = Math.max(0, Math.min(x, W - side));
+            y = Math.max(0, Math.min(y, H - side));
+            log('Face detected — smart crop applied.', 'ok');
+            return { x, y, w: side, h: side };
+          }
+          log('No face found — centered crop.', 'warn');
+        } catch (e) {
+          log('face-api detect failed: ' + e.message + ' — centered crop.', 'warn');
+        }
+      } else {
+        log('Face detection unavailable — centered crop.', 'warn');
+      }
+      const s = Math.min(W, H);
+      return { x: (W - s) / 2, y: (H - s) / 2, w: s, h: s };
+    }
+
+    // ── Line-art engine (pure Canvas) ─────────────────────
+    // Sobel gradient + adaptive (maxMag-fraction) threshold, binarized.
+    function boxBlur(src, w, h, r) {
+      if (r <= 0) return src;
+      const tmp = new Float32Array(w * h);
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          let sum = 0, cnt = 0;
+          for (let k = -r; k <= r; k++) {
+            const xx = x + k;
+            if (xx >= 0 && xx < w) { sum += src[y * w + xx]; cnt++; }
+          }
+          tmp[y * w + x] = sum / cnt;
         }
       }
-
-      // glossy top highlight for a gentle "vinyl" sheen
-      ctx.globalCompositeOperation = 'lighter';
-      const g = ctx.createLinearGradient(0, 0, 0, OUT * 0.5);
-      g.addColorStop(0, `rgba(255,255,255,${0.16 * a})`);
-      g.addColorStop(1, 'rgba(255,255,255,0)');
-      ctx.fillStyle = g; ctx.fillRect(0, 0, OUT, OUT);
-      ctx.globalCompositeOperation = 'source-over';
-
+      const out = new Float32Array(w * h);
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          let sum = 0, cnt = 0;
+          for (let k = -r; k <= r; k++) {
+            const yy = y + k;
+            if (yy >= 0 && yy < h) { sum += tmp[yy * w + x]; cnt++; }
+          }
+          out[y * w + x] = sum / cnt;
+        }
+      }
       return out;
     }
 
-    // ── Run inference + display ─────────────────────────────
-    async function runInference(canvas) {
-      if (!ortSession) { log('Model not loaded, cannot run.', 'warn'); return; }
-      try {
-        setProgress(60, 'Cartoonizing...');
-        log('Preprocessing (NCHW, [-1,1], RGB)...');
-        const tensor = preprocess(canvas);
-        log('Running local inference...');
-        const feeds = {}; feeds[ortSession.inputNames[0]] = tensor;
-        animateProgress(60, 88, 7000, 'Cartoonizing...');
-        const res = await ortSession.run(feeds);
-        const out = res[ortSession.outputNames[0]];
-        log('Output dims: [' + out.dims.join(',') + ']', 'ok');
-        const result = postprocess(out);
-        setProgress(90, 'Adding Lumling touch...');
-        const styled = applyCute(result, parseInt(lumling.value, 10), styleSel.value);
-        resultBlob = await new Promise(r => styled.toBlob(r, 'image/png'));
-        setProgress(100, 'Done');
-        const url = URL.createObjectURL(resultBlob);
-        const outEl = document.getElementById('out-img');
-        outEl.src = url; outEl.style.display = 'block';
-        document.getElementById('out-hint').style.display = 'none';
-        dlBtn.disabled = false;
-        log('Done. Your photo never left the device.', 'ok');
-        setTimeout(hideProgress, 600);
-      } catch (e) {
-        log('Inference error: ' + e.message, 'warn');
-        setProgress(0, 'Failed');
+    function renderLineArt(canvas, style, thicknessPct, bg) {
+      const w = canvas.width, h = canvas.height;
+      const ctx = canvas.getContext('2d');
+      const img = ctx.getImageData(0, 0, w, h);
+      const data = img.data;
+
+      // 1) grayscale + contrast enhancement
+      const gray = new Float32Array(w * h);
+      for (let i = 0; i < w * h; i++) {
+        const r = data[i * 4], g = data[i * 4 + 1], b = data[i * 4 + 2];
+        let lum = 0.299 * r + 0.587 * g + 0.114 * b;
+        lum = (lum - 128) * 1.3 + 128;          // boost contrast for cleaner edges
+        gray[i] = Math.max(0, Math.min(255, lum));
       }
+
+      // 2) light blur to suppress skin/fabric texture noise
+      const smooth = boxBlur(gray, w, h, 1);
+
+      // 3) Sobel gradient
+      const mag = new Float32Array(w * h);
+      let maxMag = 0;
+      for (let y = 1; y < h - 1; y++) {
+        for (let x = 1; x < w - 1; x++) {
+          const i = y * w + x;
+          const tl = smooth[i - w - 1], tc = smooth[i - w], tr = smooth[i - w + 1];
+          const ml = smooth[i - 1], mr = smooth[i + 1];
+          const bl = smooth[i + w - 1], bc = smooth[i + w], br = smooth[i + w + 1];
+          const gx = (tr + 2 * mr + br) - (tl + 2 * ml + bl);
+          const gy = (bl + 2 * bc + br) - (tl + 2 * tc + tr);
+          const m = Math.sqrt(gx * gx + gy * gy);
+          mag[i] = m;
+          if (m > maxMag) maxMag = m;
+        }
+      }
+
+      // 4) threshold: thicker slider -> lower threshold -> more lines
+      const frac = (100 - thicknessPct) / 100;       // 0..1
+      const t = (0.08 + frac * 0.22) * maxMag;        // adaptive to image
+      const isTransparent = (bg === 'transparent');
+
+      // 5) binarize into output
+      const out = ctx.createImageData(w, h);
+      const o = out.data;
+      for (let i = 0; i < w * h; i++) {
+        const edge = mag[i] > t;
+        const p = i * 4;
+        if (style === 'lineart') {
+          if (edge) { o[p] = 30; o[p + 1] = 30; o[p + 2] = 30; o[p + 3] = 255; }
+          else if (isTransparent) { o[p + 3] = 0; }
+          else { o[p] = 255; o[p + 1] = 255; o[p + 2] = 255; o[p + 3] = 255; }
+        } else { // pencil sketch: dark edges + soft tonal shading
+          const lum = smooth[i];
+          const shade = Math.max(0, (255 - lum) * 0.28);   // darker orig -> darker pencil
+          if (edge) { o[p] = 35; o[p + 1] = 35; o[p + 2] = 35; o[p + 3] = 255; }
+          else if (isTransparent) {
+            o[p] = 60; o[p + 1] = 60; o[p + 2] = 60;
+            o[p + 3] = Math.round(Math.min(160, shade * 2.2));
+          } else {
+            const v = Math.round(255 - shade);
+            o[p] = v; o[p + 1] = v; o[p + 2] = v; o[p + 3] = 255;
+          }
+        }
+      }
+      ctx.putImageData(out, 0, 0);
+      return canvas;
     }
 
-    // ── Flow ───────────────────────────────────
-    function loadImageFromFile(file) {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.onerror = reject;
-        img.src = URL.createObjectURL(file);
-      });
-    }
-
-    async function startGeneration() {
+    // ── Generate ──────────────────────────────────────────
+    async function generate() {
       if (!sourceImage) return;
-      genBtn.disabled = true; genBtn.textContent = 'Generating...';
-      try {
-        await getSession();
-        log('Preparing image (align → white-bg → inference)...');
-        setProgress(52, 'Aligning face...');
-        const base = downscale(sourceImage, 1024);
-        let aligned = base;
-        if (faceApiModelLoaded) {
-          try { aligned = await detectAndAlignFace(base); }
-          catch (e) { log('Alignment error: ' + e.message + ' — using unaligned.', 'warn'); aligned = base; }
-        }
-        if (selfieSeg) {
-          setProgress(58, 'Removing background...');
-          await selfieSeg.send({ image: aligned });
-          // onSegResults → runInference handles the rest
-        } else {
-          setProgress(58, 'Skipping background removal...');
-          runInference(aligned);
-        }
-      } catch (e) {
-        log('Error: ' + e.message, 'warn');
-        setProgress(0, 'Failed');
-        genBtn.disabled = false; genBtn.textContent = 'Generate cartoon';
-      }
+      genBtn.disabled = true;
+      dlBtn.disabled = true;
+      setProgress(10, 'Preparing…');
+
+      // cap original size
+      const src = downscale(sourceImage, MAX_SRC_SIDE);
+      setProgress(25, 'Framing…');
+
+      const box = await getCropBox(src);
+      const crop = cropCanvas(src, box);
+      setProgress(45, 'Drawing lines…');
+
+      const proc = downscale(crop, MAX_PROC_SIDE);
+      const style = styleSel.value;
+      const bg = bgSel.value;
+      const out = renderLineArt(proc, style, parseInt(thickness.value, 10), bg);
+
+      setProgress(90, 'Rendering…');
+      outImg.src = out.toDataURL('image/png');
+      outImg.style.display = 'block';
+      outHint.style.display = 'none';
+      resultBlob = await new Promise((res) => out.toBlob(res, 'image/png'));
+
+      setProgress(100, 'Done');
+      dlBtn.disabled = false;
+      genBtn.disabled = false;
+      log('Portrait ready (' + style + ', ' + bg + ').', 'ok');
     }
 
-    // ── UI wiring ──────────────────────────────────────────
-    const genBtn = document.getElementById('generate');
-    const dlBtn = document.getElementById('download');
-    const lumling = document.getElementById('lumling');
-    const lumlingVal = document.getElementById('lumling-val');
-    const styleSel = document.getElementById('style');
-    const progressWrap = document.getElementById('progress-wrap');
-    const progressFill = document.getElementById('progress-fill');
-    const progressPct = document.getElementById('progress-pct');
-    const progressLabel = document.getElementById('progress-label');
-    let progressTimer = null;
-
-    function setProgress(pct, label) {
-      const v = Math.max(0, Math.min(100, Math.round(pct)));
-      progressFill.style.width = v + '%';
-      progressPct.textContent = v + '%';
-      if (label) progressLabel.textContent = label;
-      progressWrap.classList.add('active');
-    }
-    function hideProgress() {
-      progressWrap.classList.remove('active');
-      clearInterval(progressTimer);
-      progressTimer = null;
-    }
-    function animateProgress(from, to, durationMs, label) {
-      setProgress(from, label);
-      const start = performance.now();
-      if (progressTimer) clearInterval(progressTimer);
-      progressTimer = setInterval(() => {
-        const elapsed = performance.now() - start;
-        const p = from + (to - from) * Math.min(elapsed / durationMs, 1);
-        setProgress(p, label);
-        if (elapsed >= durationMs) clearInterval(progressTimer);
-      }, 80);
-      return new Promise(resolve => setTimeout(resolve, durationMs));
-    }
-
-    lumling.addEventListener('input', () => lumlingVal.textContent = lumling.value + '%');
-
-    genBtn.addEventListener('click', startGeneration);
-
+    genBtn.addEventListener('click', generate);
     dlBtn.addEventListener('click', () => {
       if (!resultBlob) return;
       const a = document.createElement('a');
       a.href = URL.createObjectURL(resultBlob);
-      a.download = 'lumtale-watercolor.png';
+      a.download = 'lumtale-' + styleSel.value + '.png';
       a.click();
+      URL.revokeObjectURL(a.href);
     });
-
-    const drop = document.getElementById('drop');
-    const fileInput = document.getElementById('file');
-    const srcImg = document.getElementById('src-img');
-    const dropHint = document.getElementById('drop-hint');
-
-    drop.addEventListener('click', () => fileInput.click());
-    fileInput.addEventListener('change', (e) => loadFile(e.target.files[0]));
-
-    ['dragover', 'dragenter'].forEach(ev => drop.addEventListener(ev, (e) => {
-      e.preventDefault(); drop.classList.add('drag');
-    }));
-    ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, (e) => {
-      e.preventDefault(); drop.classList.remove('drag');
-    }));
-    drop.addEventListener('drop', (e) => {
-      if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
-    });
-
-    async function loadFile(file) {
-      if (!file || !file.type.startsWith('image/')) return;
-      log('Loaded ' + file.name);
-      sourceImage = await loadImageFromFile(file);
-      srcImg.src = sourceImage.src;
-      srcImg.style.display = 'block';
-      dropHint.style.display = 'none';
-      sourceLoaded = true;
-      genBtn.disabled = false;
-    }
-
-    // ── Init ───────────────────────────────────
-    (async () => {
-      await loadFaceApi();
-      await loadSeg();
-      if (!ortSession) log('Ready — drop a photo to begin.', 'ok');
-    })();
   </script>
 </body>
 </html>
