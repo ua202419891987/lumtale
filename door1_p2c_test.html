@@ -46,6 +46,14 @@
   <div class="card">
     <h2>3 · Cartoon output</h2>
     <canvas id="out" width="256" height="256"></canvas>
+    <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+      <button id="kpop" disabled>Lumling K-pop</button>
+      <button id="toy" disabled>Lumling Toy</button>
+    </div>
+    <div style="margin-top:14px;">
+      <h2 style="font-size:12px; color:var(--muted);">Styled result</h2>
+      <canvas id="styled" width="256" height="256"></canvas>
+    </div>
   </div>
 </div>
 
@@ -69,6 +77,7 @@ let ortSession = null;
 let selfieSeg = null;
 let sourceImage = null;      // HTMLImageElement from upload
 let pendingCanvas = null;    // canvas after white-bg prep
+let hasResult = false;       // cartoon output produced
 
 const MODEL_URL = 'models/photo2cartoon_weights.onnx';
 const SIZE = 256;
@@ -160,6 +169,56 @@ function postprocess(tensor){
   return c;
 }
 
+// ── Lumling style post-processing (reused from door1) ──
+// Pushes the raw Photo2Cartoon watercolor output toward the target aesthetic.
+function applyLumlingStyle(srcCanvas, style){
+  const c = document.createElement('canvas');
+  c.width = srcCanvas.width; c.height = srcCanvas.height;
+  const ctx = c.getContext('2d');
+
+  // ① base color grade via ctx.filter (CSS filter semantics)
+  if (style === 'kpop')      ctx.filter = 'brightness(1.18) saturate(1.35) contrast(1.05)';
+  else if (style === 'toy')  ctx.filter = 'brightness(1.06) saturate(1.12) contrast(0.96)';
+  else                       ctx.filter = 'none';
+  ctx.drawImage(srcCanvas, 0, 0);
+  ctx.filter = 'none';
+
+  if (style === 'kpop'){
+    // glossy top-light highlight
+    const g = ctx.createLinearGradient(0,0,0,c.height);
+    g.addColorStop(0,'rgba(255,255,255,0.25)');
+    g.addColorStop(0.4,'rgba(255,245,225,0.08)');
+    g.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.fillStyle = g; ctx.fillRect(0,0,c.width,c.height);
+    // warm vinyl tint
+    ctx.globalCompositeOperation = 'soft-light';
+    ctx.fillStyle = 'rgba(255,200,140,0.18)'; ctx.fillRect(0,0,c.width,c.height);
+    ctx.globalCompositeOperation = 'source-over';
+  } else if (style === 'toy'){
+    // pastel vinyl: soft-light pink wash
+    ctx.globalCompositeOperation = 'soft-light';
+    ctx.fillStyle = 'rgba(255,182,213,0.38)'; ctx.fillRect(0,0,c.width,c.height);
+    // subtle gloss bubble
+    ctx.globalCompositeOperation = 'lighter';
+    const r = ctx.createRadialGradient(c.width*0.5,c.height*0.35,8, c.width*0.5,c.height*0.5,c.width*0.7);
+    r.addColorStop(0,'rgba(255,255,255,0.22)');
+    r.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle = r; ctx.fillRect(0,0,c.width,c.height);
+    ctx.globalCompositeOperation = 'source-over';
+  }
+  return c;
+}
+
+function renderStyled(style){
+  if (!hasResult){ log('Run validation first (no cartoon output yet).', 'warn'); return; }
+  const styled = applyLumlingStyle(outCanvas, style);
+  const sc = document.getElementById('styled');
+  sc.width = styled.width; sc.height = styled.height;
+  sc.getContext('2d').drawImage(styled,0,0);
+  log('Applied Lumling '+style+' style → see "Styled result".', 'ok');
+}
+
 async function runInference(canvas){
   if (!ortSession){ log('Model not loaded, cannot run.', 'err'); return; }
   try {
@@ -173,6 +232,9 @@ async function runInference(canvas){
     const result = postprocess(out);
     outCanvas.width=SIZE; outCanvas.height=SIZE;
     outCanvas.getContext('2d').drawImage(result,0,0);
+    hasResult = true;
+    document.getElementById('kpop').disabled = false;
+    document.getElementById('toy').disabled = false;
     log('✔ Done. Compare output to input — are facial features preserved?', 'ok');
   } catch(e){
     log('Inference error: '+e.message, 'err');
@@ -208,6 +270,9 @@ goBtn.addEventListener('click', async ()=>{
     runInference(sourceImage);
   }
 });
+
+document.getElementById('kpop').addEventListener('click', ()=>renderStyled('kpop'));
+document.getElementById('toy').addEventListener('click', ()=>renderStyled('toy'));
 
 // ── Init ───────────────────────────────────
 (async ()=>{
