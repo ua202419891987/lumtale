@@ -159,8 +159,8 @@
           </div>
           <div class="row">
             <label>Line weight</label>
-            <input type="range" id="thickness" min="0" max="100" value="55">
-            <span class="val" id="thickness-val">55%</span>
+            <input type="range" id="thickness" min="0" max="100" value="45">
+            <span class="val" id="thickness-val">45%</span>
           </div>
           <div class="row">
             <label>Background</label>
@@ -343,6 +343,21 @@
       return faceApiPromise;
     }
 
+    function fallbackCrop(W, H) {
+      const s = Math.min(W, H);
+      let cx = W / 2;
+      let cy;
+      if (H > W) {
+        // Portrait selfie: face is usually in the upper third, not geometric center.
+        cy = Math.min(H * 0.38, H - s / 2 - 8);
+      } else {
+        cy = H / 2;
+      }
+      let x = Math.max(0, Math.min(cx - s / 2, W - s));
+      let y = Math.max(0, Math.min(cy - s / 2, H - s));
+      return { x, y, w: s, h: s };
+    }
+
     async function getCropBox(srcCanvas) {
       const W = srcCanvas.width, H = srcCanvas.height;
       const ok = await ensureFaceApi();
@@ -362,15 +377,14 @@
             log('Face detected — smart crop applied.', 'ok');
             return { x, y, w: side, h: side };
           }
-          log('No face found — centered crop.', 'warn');
+          log('No face found — portrait crop.', 'warn');
         } catch (e) {
-          log('face-api detect failed: ' + e.message + ' — centered crop.', 'warn');
+          log('face-api detect failed: ' + e.message + ' — portrait crop.', 'warn');
         }
       } else {
-        log('Face detection unavailable — centered crop.', 'warn');
+        log('Face detection unavailable — portrait crop.', 'warn');
       }
-      const s = Math.min(W, H);
-      return { x: (W - s) / 2, y: (H - s) / 2, w: s, h: s };
+      return fallbackCrop(W, H);
     }
 
     // ── Line-art engine (pure Canvas) ─────────────────────
@@ -413,12 +427,12 @@
       for (let i = 0; i < w * h; i++) {
         const r = data[i * 4], g = data[i * 4 + 1], b = data[i * 4 + 2];
         let lum = 0.299 * r + 0.587 * g + 0.114 * b;
-        lum = (lum - 128) * 1.3 + 128;          // boost contrast for cleaner edges
+        lum = (lum - 128) * 1.15 + 128;          // gentle contrast for cleaner edges
         gray[i] = Math.max(0, Math.min(255, lum));
       }
 
-      // 2) light blur to suppress skin/fabric texture noise
-      const smooth = boxBlur(gray, w, h, 1);
+      // 2) stronger blur to suppress skin/fabric texture noise
+      const smooth = boxBlur(gray, w, h, 2);
 
       // 3) Sobel gradient
       const mag = new Float32Array(w * h);
@@ -439,14 +453,29 @@
 
       // 4) threshold: thicker slider -> lower threshold -> more lines
       const frac = (100 - thicknessPct) / 100;       // 0..1
-      const t = (0.08 + frac * 0.22) * maxMag;        // adaptive to image
+      const t = (0.12 + frac * 0.30) * maxMag;        // adaptive to image
+
+      // 5) remove isolated edge pixels (noise speckles)
+      const edges = new Uint8Array(w * h);
+      for (let i = 0; i < w * h; i++) edges[i] = mag[i] > t ? 1 : 0;
+      for (let y = 1; y < h - 1; y++) {
+        for (let x = 1; x < w - 1; x++) {
+          const i = y * w + x;
+          if (!edges[i]) continue;
+          const n = edges[i - w - 1] + edges[i - w] + edges[i - w + 1] +
+                    edges[i - 1] + edges[i + 1] +
+                    edges[i + w - 1] + edges[i + w] + edges[i + w + 1];
+          if (n < 2) edges[i] = 0;   // drop lone speckles
+        }
+      }
+
       const isTransparent = (bg === 'transparent');
 
-      // 5) binarize into output
+      // 6) binarize into output
       const out = ctx.createImageData(w, h);
       const o = out.data;
       for (let i = 0; i < w * h; i++) {
-        const edge = mag[i] > t;
+        const edge = edges[i] === 1;
         const p = i * 4;
         if (style === 'lineart') {
           if (edge) { o[p] = 30; o[p + 1] = 30; o[p + 2] = 30; o[p + 3] = 255; }
