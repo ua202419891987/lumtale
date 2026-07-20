@@ -3,560 +3,138 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LumTale — Private Line Art Portrait</title>
-  <meta name="description" content="Turn a photo into a clean line-art or pencil-sketch portrait on your own device. No AI model file, no upload, no server — pure in-browser canvas.">
-  <meta name="robots" content="noindex">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <title>LumTale — Our Promise: Fair Portraits That Look Like You</title>
+  <meta name="description" content="LumTale refuses to whiten or warp non-white faces. Identity-preserving AI portraits that keep your features faithfully yours. Honest about where your photo goes.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://lumtale.com/door1.html">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg: #f6f4ef;
-      --card: #ffffff;
-      --text: #3b3b3b;
-      --text-secondary: #6c6c6c;
-      --sage: #5a7d5a;
-      --sage-dark: #4a6b4a;
-      --caramel: #d4a574;
-      --caramel-light: #e8c9a8;
-      --border: #e8e6e0;
-      --shadow: rgba(0, 0, 0, 0.04);
-      --radius: 20px;
-      --radius-sm: 12px;
+    :root{
+      --bg:#f6f4ef; --card:#ffffff; --text:#3b3b3b; --muted:#6c6c6c;
+      --sage:#5a7d5a; --sage-dark:#4a6b4a; --caramel:#d4a574; --caramel-light:#e8c9a8;
+      --border:#e8e6e0; --shadow:rgba(0,0,0,.04); --radius:20px; --radius-sm:12px;
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: var(--bg); color: var(--text); line-height: 1.6;
-    }
-    .container { max-width: 920px; margin: 0 auto; padding: 48px 24px 64px; }
-    .brand { display: inline-flex; align-items: center; gap: 10px; font-size: 1.3rem; font-weight: 700; color: var(--sage); margin-bottom: 24px; letter-spacing: -0.02em; }
-    .brand::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: var(--caramel); }
-    .back { display: inline-block; margin-bottom: 20px; color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; }
-    .back:hover { color: var(--sage); }
-    h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.1; margin-bottom: 12px; color: #2c3e2c; letter-spacing: -0.02em; }
-    h1 span { color: var(--caramel); }
-    .sub { color: var(--text-secondary); margin-bottom: 32px; max-width: 620px; }
-
-    .trust-bar {
-      display: inline-flex; align-items: center; gap: 10px;
-      background: #eef4ee; color: var(--sage-dark);
-      border-radius: 999px; padding: 10px 18px; font-size: 0.85rem; font-weight: 600;
-      margin-bottom: 32px;
-    }
-    .trust-bar::before { content: "🔒"; }
-
-    .studio {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 28px; box-shadow: 0 8px 30px var(--shadow);
-    }
-    @media (max-width: 680px) { .studio { grid-template-columns: 1fr; } }
-
-    .panel { display: flex; flex-direction: column; }
-    .panel h2 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 12px; }
-
-    .drop {
-      flex-grow: 1; min-height: 260px; border: 2px dashed var(--border); border-radius: var(--radius-sm);
-      display: flex; align-items: center; justify-content: center; text-align: center;
-      color: var(--text-secondary); cursor: pointer; position: relative; overflow: hidden;
-      background: #fafafa; transition: border-color 0.2s, background 0.2s;
-    }
-    .drop:hover, .drop.drag { border-color: var(--sage); background: #f3f8f3; }
-    .drop img { max-width: 100%; max-height: 320px; display: block; }
-    .drop .hint { padding: 20px; font-size: 0.95rem; }
-    .drop .hint strong { color: var(--text); display: block; margin-bottom: 6px; font-size: 1.05rem; }
-
-    .controls { margin-top: 16px; display: flex; flex-direction: column; gap: 12px; }
-    .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .row label { font-size: 0.9rem; color: var(--text); min-width: 92px; }
-    .row .val { font-size: 0.82rem; color: var(--text-secondary); min-width: 42px; text-align: right; }
-
-    .progress-wrap {
-      display: none;
-      flex-direction: column; gap: 6px;
-      background: #f3f8f3; border: 1px solid #dce8dc;
-      border-radius: var(--radius-sm); padding: 12px 14px;
-    }
-    .progress-wrap.active { display: flex; }
-    .progress-bar {
-      width: 100%; height: 10px; background: #dce8dc; border-radius: 999px; overflow: hidden;
-    }
-    .progress-fill {
-      width: 0%; height: 100%; background: linear-gradient(90deg, var(--sage), var(--caramel));
-      border-radius: 999px; transition: width 0.15s linear;
-    }
-    .progress-text {
-      font-size: 0.85rem; color: var(--sage-dark); font-weight: 500;
-      display: flex; justify-content: space-between;
-    }
-
-    button {
-      font-family: inherit; font-size: 1rem; font-weight: 600; cursor: pointer;
-      border: none; border-radius: var(--radius-sm); padding: 14px 24px; transition: background 0.2s, opacity 0.2s;
-    }
-    .btn-primary { background: var(--sage); color: #fff; }
-    .btn-primary:hover { background: var(--sage-dark); }
-    .btn-primary:disabled { background: #aab8aa; cursor: not-allowed; }
-    .btn-ghost { background: #f1efe9; color: var(--text); }
-    .btn-ghost:hover { background: #e7e4dc; }
-    .btn-ghost:disabled { opacity: 0.5; cursor: not-allowed; }
-    .btn-pro { background: var(--caramel); color: #fff; }
-    .btn-pro:hover { background: #c2935f; }
-
-    .log {
-      margin-top: 20px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.8rem;
-      background: #2c3e2c; color: #cfe0cf; border-radius: var(--radius-sm); padding: 14px 16px;
-      max-height: 160px; overflow-y: auto; white-space: pre-wrap; line-height: 1.5;
-    }
-    .log .ok { color: #9ee29e; }
-    .log .warn { color: #f0d28a; }
-
-    .note { font-size: 0.8rem; color: #999; margin-top: 24px; line-height: 1.5; }
-    .note code { background: #efece5; padding: 1px 5px; border-radius: 4px; }
-    .tip { font-size: 0.82rem; color: var(--sage-dark); margin-top: 10px; }
-
-    input[type="file"] { display: none; }
-    input[type="range"] { flex: 1; }
-    select {
-      font-family: inherit; font-size: 0.9rem; padding: 8px 12px;
-      border: 1px solid var(--border); border-radius: var(--radius-sm);
-      background: #fff; color: var(--text); cursor: pointer;
-    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Outfit',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.65}
+    .container{max-width:860px;margin:0 auto;padding:40px 24px 72px}
+    .brand{display:inline-flex;align-items:center;gap:10px;font-size:1.25rem;font-weight:700;color:var(--sage);letter-spacing:-.02em}
+    .brand::before{content:"";display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--caramel)}
+    .back{display:inline-block;margin:18px 0 8px;color:var(--muted);text-decoration:none;font-size:.9rem}
+    .back:hover{color:var(--sage)}
+    h1{font-size:clamp(2rem,5vw,3rem);line-height:1.08;letter-spacing:-.02em;color:#2c3e2c;margin-bottom:14px}
+    h1 span{color:var(--caramel)}
+    .lead{font-size:1.12rem;color:var(--muted);max-width:640px;margin-bottom:36px}
+    .section{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:30px;margin-bottom:22px;box-shadow:0 8px 30px var(--shadow)}
+    .section h2{font-size:1.35rem;color:#2c3e2c;margin-bottom:8px;letter-spacing:-.01em}
+    .section > p{color:var(--muted);margin-bottom:18px}
+    .pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    @media(max-width:680px){.pillars{grid-template-columns:1fr}}
+    .pillar{background:#faf9f6;border:1px solid var(--border);border-radius:var(--radius-sm);padding:18px}
+    .pillar .tag{display:inline-block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--sage-dark);background:#eef4ee;padding:4px 10px;border-radius:999px;margin-bottom:10px}
+    .pillar h3{font-size:1.02rem;color:#2c3e2c;margin-bottom:6px}
+    .pillar p{font-size:.92rem;color:var(--muted)}
+    .problem{list-style:none;display:flex;flex-direction:column;gap:12px}
+    .problem li{display:flex;gap:12px;align-items:flex-start;font-size:.96rem;color:var(--text)}
+    .problem li::before{content:"✕";color:#b5564a;font-weight:700;flex-shrink:0}
+    .doors{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    @media(max-width:680px){.doors{grid-template-columns:1fr}}
+    .door{background:#faf9f6;border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px}
+    .door h3{font-size:1.05rem;color:#2c3e2c;margin-bottom:6px}
+    .door p{font-size:.9rem;color:var(--muted);margin-bottom:8px}
+    .door .label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--sage-dark)}
+    .cta-wrap{text-align:center;margin:34px 0 10px}
+    .cta{display:inline-block;background:var(--sage);color:#fff;font-weight:600;font-size:1.02rem;padding:15px 32px;border-radius:999px;text-decoration:none;transition:background .2s}
+    .cta:hover{background:var(--sage-dark)}
+    .faq-item{border-top:1px solid var(--border);padding:16px 0}
+    .faq-item:first-child{border-top:none}
+    .faq-item h3{font-size:1rem;color:#2c3e2c;margin-bottom:6px}
+    .faq-item p{font-size:.92rem;color:var(--muted)}
+    .note{font-size:.82rem;color:var(--muted);text-align:center;margin-top:18px}
   </style>
 </head>
 <body>
   <div class="container">
-    <a class="back" href="/">← Back to LumTale</a>
     <div class="brand">LumTale</div>
-    <div class="trust-bar">100% on-device — your photo never leaves this browser</div>
+    <a class="back" href="/">← Back to LumTale</a>
 
-    <h1>Private <span>Pencil Sketch</span> Portrait</h1>
-    <p class="sub">
-      Turn a photo into a hand-drawn pencil-sketch or clean line-art portrait — entirely on your device.
-      No AI model file, no upload, no server. Pure in-browser canvas. Works for selfies,
-      pets, and even landscapes.
+    <h1>Fair. <span>Like you.</span><br>Never re-shaped.</h1>
+    <p class="lead">
+      Most AI avatar apps quietly reshape non-white faces into something paler and more
+      &ldquo;standard.&rdquo; We built LumTale to refuse that &mdash; and to tell you exactly
+      what happens to your photo.
     </p>
 
-    <div class="studio">
-      <div class="panel">
-        <h2>Your photo</h2>
-        <div class="drop" id="drop">
-          <div class="hint" id="drop-hint">
-            <strong>Drop a photo here</strong>
-            or click to choose
-            <br><small>JPG / PNG · front-facing &amp; simple background works best</small>
-          </div>
-          <img id="src-img" alt="source" style="display:none">
-        </div>
-        <input type="file" id="file" accept="image/*">
-        <div class="controls">
-          <div class="row">
-            <label>Style</label>
-            <select id="style">
-              <option value="sketch" selected>Pencil Sketch</option>
-              <option value="lineart">Pure Line Art</option>
-            </select>
-          </div>
-          <div class="row">
-            <label>Line weight</label>
-            <input type="range" id="thickness" min="0" max="100" value="45">
-            <span class="val" id="thickness-val">45%</span>
-          </div>
-          <div class="row">
-            <label>Background</label>
-            <select id="bg">
-              <option value="transparent" selected>Transparent (PNG)</option>
-              <option value="white">White</option>
-            </select>
-          </div>
-          <div class="row">
-            <button class="btn-primary" id="generate" disabled>Generate</button>
-            <button class="btn-ghost" id="download" disabled>Download</button>
-          </div>
-          <div class="progress-wrap" id="progress-wrap">
-            <div class="progress-text"><span id="progress-label">Ready</span><span id="progress-pct">0%</span></div>
-            <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-          </div>
-        </div>
-      </div>
+    <div class="section">
+      <h2>What big avatar apps do to non-white faces</h2>
+      <p>It isn't an accident, and it isn't rare. The patterns are well documented:</p>
+      <ul class="problem">
+        <li><strong>Whitening &amp; warping.</strong> Asian, Black, and Latino faces get lightened, narrowed, and reshaped toward a Eurocentric template.</li>
+        <li><strong>Low hit rate.</strong> Even popular apps only land ~40% usable results &mdash; you pay for 50 images and keep 3&ndash;5.</li>
+        <li><strong>Subscription traps.</strong> Hidden weekly charges that are hard to cancel once your card is on file.</li>
+      </ul>
+    </div>
 
-      <div class="panel">
-        <h2>Result</h2>
-        <div class="drop" id="out-drop" style="background:#fafafa;">
-          <div class="hint" id="out-hint">Your portrait will appear here</div>
-          <img id="out-img" alt="result" style="display:none">
+    <div class="section">
+      <h2>Our three promises</h2>
+      <div class="pillars">
+        <div class="pillar">
+          <span class="tag">Fair</span>
+          <h3>We don't standardize you</h3>
+          <p>Your skin tone, features, and identity stay exactly as they are. No whitening, no &ldquo;fixing.&rdquo;</p>
         </div>
-        <p class="tip" id="tip">Tip: a clear, front-facing photo with even light gives the cleanest lines.</p>
+        <div class="pillar">
+          <span class="tag">You</span>
+          <h3>Identity-preserving</h3>
+          <p>Our cloud studio uses identity-preserving generation, so the face in your portrait is genuinely your face.</p>
+        </div>
+        <div class="pillar">
+          <span class="tag">Honest</span>
+          <h3>You always know</h3>
+          <p>Where your photo goes, who touches it, and what it's used for &mdash; stated plainly, before you upload.</p>
+        </div>
       </div>
     </div>
 
-    <div class="log" id="log">ready.</div>
+    <div class="section">
+      <h2>Where your photo goes</h2>
+      <div class="doors">
+        <div class="door">
+          <span class="label">Door 1 &mdash; This page</span>
+          <h3>No photo required</h3>
+          <p>This is our promise page. You read it, you learn how we treat faces &mdash; and nothing you upload here ever leaves your device, because there's nothing to upload.</p>
+        </div>
+        <div class="door">
+          <span class="label">Door 2 &mdash; Lumling Studio</span>
+          <h3>A vetted GPU partner</h3>
+          <p>To create your portrait, your photo is sent to a secure GPU partner (Replicate) that runs identity-preserving generation. We never store or train on your images, and you can read their policy before you begin.</p>
+        </div>
+      </div>
+    </div>
 
-    <p class="note">
-      <strong>How to verify zero upload:</strong> open DevTools (F12) → Network tab, then upload and generate.
-      You'll see <em>no outbound request containing your photo</em> — everything runs locally on your device.
-      The optional face-detection library (face-api.js) loads from a CDN as JavaScript only; it is not your image,
-      and if it fails to load we simply use a centered crop instead.
-    </p>
+    <div class="cta-wrap">
+      <a class="cta" href="/door2.html">Create your Lumling portrait &rarr;</a>
+    </div>
+    <p class="note">No account needed to read our promise. A photo is only sent when you choose Door 2.</p>
 
-    <div style="margin-top:28px; text-align:center;">
-      <a class="btn-pro" id="pro-link" href="/door2.html" style="text-decoration:none; display:inline-block;">Want a full color makeover? → LumTale Pro</a>
+    <div class="section">
+      <h2>Honest FAQ</h2>
+      <div class="faq-item">
+        <h3>Will my face be whitened or changed?</h3>
+        <p>No. That's the entire point of LumTale. Our generation is tuned to keep your features faithfully yours.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Do you train on my photo?</h3>
+        <p>No. Your photo is used only to generate your portrait and is not stored or used for model training.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Is Door 1 a generator?</h3>
+        <p>No. Door 1 is this promise page. The actual portraits are created in Door 2 (Lumling Studio).</p>
+      </div>
+      <div class="faq-item">
+        <h3>What if I don't want to upload at all?</h3>
+        <p>Then Door 1 is enough &mdash; you've learned how we work, with zero upload. You only send a photo when you decide to create a portrait in Door 2.</p>
+      </div>
     </div>
   </div>
-
-  <!-- face-api.js is OPTIONAL: used only for smarter face cropping.
-       It is a JavaScript library (not your photo). If it fails to load,
-       we fall back to a centered crop and still produce a result. -->
-  <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js" crossorigin="anonymous"></script>
-
-  <script>
-    "use strict";
-
-    // ── Config ──────────────────────────────────────────────
-    const FACEAPI_MODEL_BASE = "https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/";
-    const MAX_SRC_SIDE = 1024;   // cap original before detection (prevents OOM)
-    const MAX_PROC_SIDE = 768;   // working resolution for line detection
-
-    const logEl = document.getElementById('log');
-    function log(msg, cls) {
-      const line = document.createElement('div');
-      if (cls) line.className = cls;
-      line.textContent = msg;
-      logEl.appendChild(line);
-      logEl.scrollTop = logEl.scrollHeight;
-    }
-
-    // Trust easter egg
-    console.log('%c🔒 LumTale Door 1', 'color:#5a7d5a;font-weight:bold',
-      '— zero upload confirmed. Open DevTools → Network: no outbound image traffic during processing.');
-
-    // ── State ──────────────────────────────────────────────
-    let sourceImage = null;
-    let resultBlob = null;
-    let faceApiPromise = null;
-
-    // ── DOM ────────────────────────────────────────────────
-    const dropEl = document.getElementById('drop');
-    const dropHint = document.getElementById('drop-hint');
-    const srcImg = document.getElementById('src-img');
-    const fileInput = document.getElementById('file');
-    const styleSel = document.getElementById('style');
-    const thickness = document.getElementById('thickness');
-    const thicknessVal = document.getElementById('thickness-val');
-    const bgSel = document.getElementById('bg');
-    const genBtn = document.getElementById('generate');
-    const dlBtn = document.getElementById('download');
-    const outImg = document.getElementById('out-img');
-    const outHint = document.getElementById('out-hint');
-    const progressWrap = document.getElementById('progress-wrap');
-    const progressLabel = document.getElementById('progress-label');
-    const progressPct = document.getElementById('progress-pct');
-    const progressFill = document.getElementById('progress-fill');
-
-    // ── Progress helper ────────────────────────────────────
-    function setProgress(pct, label) {
-      progressWrap.classList.add('active');
-      progressFill.style.width = pct + '%';
-      progressPct.textContent = pct + '%';
-      if (label) progressLabel.textContent = label;
-    }
-
-    function lockUI(locked) {
-      genBtn.disabled = locked || !sourceImage;
-      if (locked) genBtn.disabled = true;
-    }
-
-    // ── Upload wiring ─────────────────────────────────────
-    dropEl.addEventListener('click', () => fileInput.click());
-    fileInput.addEventListener('change', (e) => { if (e.target.files[0]) loadFile(e.target.files[0]); });
-    ['dragover', 'dragenter'].forEach(ev => dropEl.addEventListener(ev, (e) => { e.preventDefault(); dropEl.classList.add('drag'); }));
-    ['dragleave', 'drop'].forEach(ev => dropEl.addEventListener(ev, (e) => { e.preventDefault(); dropEl.classList.remove('drag'); }));
-    dropEl.addEventListener('drop', (e) => {
-      const f = e.dataTransfer.files[0];
-      if (f && f.type.startsWith('image/')) loadFile(f);
-    });
-
-    function loadFile(file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const img = new Image();
-        img.onload = () => {
-          sourceImage = img;
-          srcImg.src = img.src;
-          srcImg.style.display = 'block';
-          dropHint.style.display = 'none';
-          genBtn.disabled = false;
-          outImg.style.display = 'none';
-          outHint.style.display = 'block';
-          dlBtn.disabled = true;
-          log('Photo loaded — ' + img.width + '×' + img.height);
-        };
-        img.src = reader.result;
-      };
-      reader.readAsDataURL(file);
-    }
-
-    thickness.addEventListener('input', () => { thicknessVal.textContent = thickness.value + '%'; });
-
-    // ── Canvas helpers ────────────────────────────────────
-    function makeCanvas(w, h) {
-      const c = document.createElement('canvas');
-      c.width = w; c.height = h;
-      return c;
-    }
-
-    function downscale(src, maxSide) {
-      const sw = src.width || src.naturalWidth;
-      const sh = src.height || src.naturalHeight;
-      const scale = Math.min(1, maxSide / Math.max(sw, sh));
-      const w = Math.max(1, Math.round(sw * scale));
-      const h = Math.max(1, Math.round(sh * scale));
-      const c = makeCanvas(w, h);
-      const ctx = c.getContext('2d');
-      ctx.drawImage(src, 0, 0, w, h);
-      return c;
-    }
-
-    function cropCanvas(src, box) {
-      const w = Math.max(1, Math.round(box.w));
-      const h = Math.max(1, Math.round(box.h));
-      const c = makeCanvas(w, h);
-      const ctx = c.getContext('2d');
-      ctx.drawImage(src, box.x, box.y, box.w, box.h, 0, 0, w, h);
-      return c;
-    }
-
-    // ── Optional face-api (smart crop) ────────────────────
-    function ensureFaceApi() {
-      if (typeof faceapi === 'undefined') return Promise.resolve(false);
-      if (!faceApiPromise) {
-        faceApiPromise = (async () => {
-          try {
-            await faceapi.nets.tinyFaceDetector.loadFromUri(FACEAPI_MODEL_BASE);
-            return true;
-          } catch (e) {
-            log('face-api models failed: ' + e.message + ' — using centered crop.', 'warn');
-            return false;
-          }
-        })();
-      }
-      return faceApiPromise;
-    }
-
-    function fallbackCrop(W, H) {
-      const s = Math.min(W, H);
-      let cx = W / 2;
-      let cy;
-      if (H > W) {
-        // Portrait selfie: face is usually in the upper third, not geometric center.
-        cy = Math.min(H * 0.38, H - s / 2 - 8);
-      } else {
-        cy = H / 2;
-      }
-      let x = Math.max(0, Math.min(cx - s / 2, W - s));
-      let y = Math.max(0, Math.min(cy - s / 2, H - s));
-      return { x, y, w: s, h: s };
-    }
-
-    async function getCropBox(srcCanvas) {
-      const W = srcCanvas.width, H = srcCanvas.height;
-      const ok = await ensureFaceApi();
-      if (ok) {
-        try {
-          const det = await faceapi.detectSingleFace(
-            srcCanvas, new faceapi.TinyFaceDetectorOptions({ inputSize: 320 })
-          );
-          if (det) {
-            const b = det.box;   // detectSingleFace returns FaceDetection directly
-            const cx = b.x + b.width / 2, cy = b.y + b.height / 2;
-            let side = Math.max(b.width, b.height) * 1.5;
-            side = Math.min(side, Math.min(W, H) * 1.25);
-            let x = cx - side / 2, y = cy - side / 2;
-            x = Math.max(0, Math.min(x, W - side));
-            y = Math.max(0, Math.min(y, H - side));
-            log('Face detected — smart crop applied.', 'ok');
-            return { x, y, w: side, h: side };
-          }
-          log('No face found — portrait crop.', 'warn');
-        } catch (e) {
-          log('face-api detect failed: ' + e.message + ' — portrait crop.', 'warn');
-        }
-      } else {
-        log('Face detection unavailable — portrait crop.', 'warn');
-      }
-      return fallbackCrop(W, H);
-    }
-
-    // ── Portrait engine (pure Canvas) ─────────────────────
-    // Two real styles:
-    //   • sketch  : graphite pencil (gray ÷ inverted-blur, the classic pencil-sketch algorithm)
-    //   • lineart : XDoG clean ink lines
-    // Both use a separable Gaussian and an edge feather so the crop never looks like a box.
-
-    // Separable Gaussian blur with clamped edges.
-    function gaussianBlur(src, w, h, radius, sigma) {
-      const k = new Float32Array(radius * 2 + 1);
-      let sum = 0;
-      for (let i = -radius; i <= radius; i++) {
-        const v = Math.exp(-(i * i) / (2 * sigma * sigma));
-        k[i + radius] = v; sum += v;
-      }
-      for (let i = 0; i < k.length; i++) k[i] /= sum;
-      const tmp = new Float32Array(w * h);
-      for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
-          let s = 0;
-          for (let i = -radius; i <= radius; i++) {
-            let xx = x + i; if (xx < 0) xx = 0; else if (xx >= w) xx = w - 1;
-            s += src[y * w + xx] * k[i + radius];
-          }
-          tmp[y * w + x] = s;
-        }
-      }
-      const out = new Float32Array(w * h);
-      for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
-          let s = 0;
-          for (let i = -radius; i <= radius; i++) {
-            let yy = y + i; if (yy < 0) yy = 0; else if (yy >= h) yy = h - 1;
-            s += tmp[yy * w + x] * k[i + radius];
-          }
-          out[y * w + x] = s;
-        }
-      }
-      return out;
-    }
-
-    // Radial feather: 1.0 in the center, ramping to fEdge at the border (removes the box edge).
-    function featherMask(w, h, fEdge, margin) {
-      const m = new Float32Array(w * h);
-      const mx = w * margin, my = h * margin;
-      for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
-          const dx = Math.min(x, w - 1 - x) / (mx || 1);
-          const dy = Math.min(y, h - 1 - y) / (my || 1);
-          const d = Math.min(1, Math.min(dx, dy));
-          m[y * w + x] = fEdge + (1 - fEdge) * d;
-        }
-      }
-      return m;
-    }
-
-    function renderLineArt(canvas, style, thicknessPct, bg) {
-      const w = canvas.width, h = canvas.height;
-      const ctx = canvas.getContext('2d');
-      const img = ctx.getImageData(0, 0, w, h);
-      const data = img.data;
-
-      // 1) grayscale + contrast (a touch stronger reads better as pencil)
-      const gray = new Float32Array(w * h);
-      for (let i = 0; i < w * h; i++) {
-        const r = data[i * 4], g = data[i * 4 + 1], b = data[i * 4 + 2];
-        let lum = 0.299 * r + 0.587 * g + 0.114 * b;
-        lum = (lum - 128) * 1.3 + 128;
-        gray[i] = Math.max(0, Math.min(255, lum));
-      }
-
-      const isTransparent = (bg === 'transparent');
-      const feather = featherMask(w, h, isTransparent ? 0.0 : 0.15, 0.10);
-      const out = ctx.createImageData(w, h);
-      const o = out.data;
-
-      if (style === 'sketch') {
-        // Pencil sketch: gray ÷ (255 - blurred-inverted-gray). Uniform areas → white paper.
-        const inv = new Float32Array(w * h);
-        for (let i = 0; i < w * h; i++) inv[i] = 255 - gray[i];
-        const invBlur = gaussianBlur(inv, w, h, 8, 8);
-        for (let i = 0; i < w * h; i++) {
-          let denom = 255 - invBlur[i];
-          if (denom < 1) denom = 1;
-          let sk = (gray[i] / denom) * 256;          // classic pencil formula
-          sk = Math.max(0, Math.min(255, sk));
-          const f = feather[i];
-          if (isTransparent) {
-            o[i * 4] = 45; o[i * 4 + 1] = 45; o[i * 4 + 2] = 45;
-            o[i * 4 + 3] = Math.round((255 - sk) * f);     // graphite dark = opaque, paper transparent
-          } else {
-            const v = Math.round(sk + (255 - sk) * (1 - f)); // edges fade to white paper
-            o[i * 4] = v; o[i * 4 + 1] = v; o[i * 4 + 2] = v; o[i * 4 + 3] = 255;
-          }
-        }
-      } else {
-        // XDoG clean ink lines: gradient of a sharp Gaussian, soft thresholded.
-        const s1 = gaussianBlur(gray, w, h, 2, 2);
-        const s2 = gaussianBlur(gray, w, h, 6, 6);
-        const mag = new Float32Array(w * h);
-        let maxM = 0;
-        for (let y = 1; y < h - 1; y++) {
-          for (let x = 1; x < w - 1; x++) {
-            const i = y * w + x;
-            const gx = s1[i + 1] - s1[i - 1];
-            const gy = s1[i + w] - s1[i - w];
-            const m = Math.sqrt(gx * gx + gy * gy);
-            mag[i] = m;
-            if (m > maxM) maxM = m;
-          }
-        }
-        const frac = (100 - thicknessPct) / 100;
-        const t = (0.15 + frac * 0.35) * maxM;
-        const range = (maxM * 0.15) || 1;
-        for (let i = 0; i < w * h; i++) {
-          const e = Math.min(1, Math.max(0, (mag[i] - t) / range));
-          const f = feather[i];
-          if (isTransparent) {
-            o[i * 4] = 30; o[i * 4 + 1] = 30; o[i * 4 + 2] = 30;
-            o[i * 4 + 3] = Math.round(e * 255 * f);
-          } else {
-            const v = Math.round(255 - e * 255 * f);
-            o[i * 4] = v; o[i * 4 + 1] = v; o[i * 4 + 2] = v; o[i * 4 + 3] = 255;
-          }
-        }
-      }
-      ctx.putImageData(out, 0, 0);
-      return canvas;
-    }
-
-    // ── Generate ──────────────────────────────────────────
-    async function generate() {
-      if (!sourceImage) return;
-      genBtn.disabled = true;
-      dlBtn.disabled = true;
-      setProgress(10, 'Preparing…');
-
-      // cap original size
-      const src = downscale(sourceImage, MAX_SRC_SIDE);
-      setProgress(25, 'Framing…');
-
-      const box = await getCropBox(src);
-      const crop = cropCanvas(src, box);
-      setProgress(45, 'Drawing lines…');
-
-      const proc = downscale(crop, MAX_PROC_SIDE);
-      const style = styleSel.value;
-      const bg = bgSel.value;
-      const out = renderLineArt(proc, style, parseInt(thickness.value, 10), bg);
-
-      setProgress(90, 'Rendering…');
-      outImg.src = out.toDataURL('image/png');
-      outImg.style.display = 'block';
-      outHint.style.display = 'none';
-      resultBlob = await new Promise((res) => out.toBlob(res, 'image/png'));
-
-      setProgress(100, 'Done');
-      dlBtn.disabled = false;
-      genBtn.disabled = false;
-      log('Portrait ready (' + style + ', ' + bg + ').', 'ok');
-    }
-
-    genBtn.addEventListener('click', generate);
-    dlBtn.addEventListener('click', () => {
-      if (!resultBlob) return;
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(resultBlob);
-      a.download = 'lumtale-' + styleSel.value + '.png';
-      a.click();
-      URL.revokeObjectURL(a.href);
-    });
-  </script>
 </body>
 </html>

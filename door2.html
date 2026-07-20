@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LumTale Studio — Fair AI Portraits That Look Like You</title>
+  <meta name="description" content="Turn your photo into a Lumling Dream or Lumling Toon portrait. We keep your face your face — no whitening, no warping, no training on your photo.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f6f4ef;
+      --card: #ffffff;
+      --text: #3b3b3b;
+      --text-secondary: #6c6c6c;
+      --sage: #5a7d5a;
+      --sage-dark: #4a6b4a;
+      --caramel: #d4a574;
+      --caramel-light: #e8c9a8;
+      --border: #e8e6e0;
+      --shadow: rgba(0, 0, 0, 0.05);
+      --radius: 20px;
+      --radius-sm: 12px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .container { max-width: 920px; margin: 0 auto; padding: 56px 24px 64px; }
+
+    .brand {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-size: 1.4rem; font-weight: 700; color: var(--sage);
+      text-decoration: none; margin-bottom: 36px; letter-spacing: -0.02em;
+    }
+    .brand::before {
+      content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--caramel);
+    }
+
+    h1 { font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.08; margin-bottom: 16px; color: #2c3e2c; letter-spacing: -0.03em; }
+    h1 span { color: var(--caramel); }
+    .lead { font-size: 1.15rem; color: var(--text-secondary); margin-bottom: 28px; max-width: 640px; }
+
+    .promise {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: #fff; border: 1px solid var(--border); border-radius: 999px;
+      padding: 10px 18px; font-size: 0.9rem; font-weight: 600; color: var(--sage-dark);
+      margin-bottom: 32px;
+    }
+    .promise::before { content: "✊"; }
+
+    .privacy {
+      background: #fdf6ee; border: 1px solid #f0e2cf; border-radius: var(--radius-sm);
+      padding: 16px 20px; font-size: 0.92rem; color: #8a6a47; margin-bottom: 32px;
+    }
+    .privacy strong { color: #6f5232; }
+
+    .panel {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 28px; box-shadow: 0 8px 30px var(--shadow); margin-bottom: 28px;
+    }
+
+    .row { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
+    .row + .row { margin-top: 20px; }
+
+    .uploader {
+      flex: 1; min-width: 240px;
+      border: 2px dashed var(--border); border-radius: var(--radius-sm);
+      padding: 24px; text-align: center; cursor: pointer; transition: border-color .2s;
+      position: relative;
+    }
+    .uploader:hover { border-color: var(--sage); }
+    .uploader input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .uploader .hint { color: var(--text-secondary); font-size: 0.92rem; }
+    .uploader .hint b { color: var(--text); }
+
+    .preview-wrap { width: 160px; }
+    .preview-wrap img { width: 100%; border-radius: var(--radius-sm); border: 1px solid var(--border); display: none; }
+
+    label.field { font-size: 0.9rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 8px; }
+    select, .btn {
+      font-family: inherit; font-size: 0.98rem; border-radius: var(--radius-sm);
+      padding: 12px 18px; border: 1px solid #d8d6d0; background: #fff; color: var(--text); cursor: pointer;
+    }
+    select:focus { outline: none; border-color: var(--sage); box-shadow: 0 0 0 3px rgba(90,125,90,.12); }
+
+    .btn {
+      background: var(--sage); color: #fff; border: none; font-weight: 600;
+      transition: background .2s; margin-top: 4px;
+    }
+    .btn:hover { background: var(--sage-dark); }
+    .btn:disabled { background: #b9c7b9; cursor: not-allowed; }
+
+    .status { font-size: 0.95rem; color: var(--text-secondary); margin-top: 18px; min-height: 24px; }
+    .status.error { color: #c0392b; }
+
+    .results { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-top: 8px; }
+    .result-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+    .result-card img { width: 100%; display: block; }
+    .result-card a {
+      display: block; text-align: center; padding: 10px; font-size: 0.85rem; font-weight: 600;
+      color: var(--sage-dark); text-decoration: none; border-top: 1px solid var(--border);
+    }
+    .result-card a:hover { background: #f3f7f3; }
+
+    .back { margin-top: 32px; font-size: 0.9rem; }
+    .back a { color: var(--sage); text-decoration: none; }
+    .back a:hover { text-decoration: underline; }
+
+    .spinner {
+      width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.5); border-top-color: #fff;
+      border-radius: 50%; display: inline-block; vertical-align: -3px; margin-right: 8px;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 600px) {
+      .container { padding: 44px 18px 48px; }
+      .preview-wrap { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a class="brand" href="/">LumTale</a>
+
+    <h1>Fair AI portraits.<br>That look like <span>you</span>.</h1>
+    <p class="lead">
+      Pick a Lumling style and watch your photo become a hand-painted-looking avatar.
+      We keep your face <strong>your</strong> face — no whitening, no warping, no "makeover" surgery.
+    </p>
+
+    <div class="promise">One promise: your face stays your face.</div>
+
+    <div class="privacy">
+      <strong>Honest about the photo:</strong> to create your portrait, your image is sent to a secure GPU
+      processing partner (Replicate). We <strong>do not store, train on, or resell</strong> your photos,
+      and the partner processes them on demand without keeping them for model training.
+    </div>
+
+    <div class="panel">
+      <div class="row">
+        <label class="uploader">
+          <span class="hint"><b>Choose a photo</b><br>front-facing, good light, simple background works best</span>
+          <input type="file" id="file" accept="image/*">
+        </label>
+        <div class="preview-wrap">
+          <img id="preview" alt="preview">
+        </div>
+      </div>
+
+      <div class="row">
+        <div style="flex:1; min-width:220px;">
+          <label class="field" for="style">Style</label>
+          <select id="style" style="width:100%;">
+            <option value="dream">Lumling Dream — soft painterly illustration</option>
+            <option value="toon">Lumling Toon — friendly 3D cartoon</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="btn" id="generate" disabled>Generate my portrait</button>
+      </div>
+
+      <div class="status" id="status"></div>
+
+      <div class="results" id="results"></div>
+    </div>
+
+    <div class="back">
+      Prefer zero upload? Try the <a href="/door1.html">local privacy demo →</a>
+    </div>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('file');
+    const preview = document.getElementById('preview');
+    const styleSel = document.getElementById('style');
+    const genBtn = document.getElementById('generate');
+    const statusEl = document.getElementById('status');
+    const resultsEl = document.getElementById('results');
+
+    let dataUrl = null;
+
+    function setStatus(msg, isError) {
+      statusEl.textContent = msg || '';
+      statusEl.className = 'status' + (isError ? ' error' : '');
+    }
+
+    // Client-side downscale so we never upload a huge file.
+    function readAndDownscale(file, maxDim = 1024) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error('read failed'));
+        reader.onload = () => {
+          const img = new Image();
+          img.onerror = () => reject(new Error('decode failed'));
+          img.onload = () => {
+            let { width, height } = img;
+            const scale = Math.min(1, maxDim / Math.max(width, height));
+            width = Math.round(width * scale);
+            height = Math.round(height * scale);
+            const canvas = document.createElement('canvas');
+            canvas.width = width; canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', 0.9));
+          };
+          img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    fileInput.addEventListener('change', async () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+      try {
+        dataUrl = await readAndDownscale(file);
+        preview.src = dataUrl;
+        preview.style.display = 'block';
+        genBtn.disabled = false;
+        setStatus('');
+        resultsEl.innerHTML = '';
+      } catch (e) {
+        setStatus('Could not read that image. Try another file.', true);
+      }
+    });
+
+    async function poll(id) {
+      for (let i = 0; i < 60; i++) {
+        await new Promise(r => setTimeout(r, 2500));
+        const r = await fetch('/api/status?id=' + encodeURIComponent(id));
+        const data = await r.json();
+        if (data.error) { setStatus(data.error, true); return; }
+        if (data.status === 'succeeded') { return data.output; }
+        if (data.status === 'failed') { setStatus('Generation failed. Please try again.', true); return; }
+        setStatus('Creating your portrait… (' + (i + 1) + '/60)');
+      }
+      setStatus('Still working — please wait a moment and refresh.', true);
+      return null;
+    }
+
+    genBtn.addEventListener('click', async () => {
+      if (!dataUrl) return;
+      genBtn.disabled = true;
+      resultsEl.innerHTML = '';
+      try {
+        setStatus('Sending to secure processor…');
+        const res = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: dataUrl, style: styleSel.value }),
+        });
+        const data = await res.json();
+        if (!res.ok || data.error) {
+          setStatus(data.error || 'Something went wrong starting generation.', true);
+          genBtn.disabled = false;
+          return;
+        }
+        const output = await poll(data.id);
+        if (!output) { genBtn.disabled = false; return; }
+        resultsEl.innerHTML = '';
+        (Array.isArray(output) ? output : [output]).forEach((url, i) => {
+          const card = document.createElement('div');
+          card.className = 'result-card';
+          card.innerHTML =
+            '<img src="' + url + '" alt="result ' + (i + 1) + '">' +
+            '<a href="' + url + '" download="lumtale-' + styleSel.value + '-' + (i + 1) + '.png">Download ↓</a>';
+          resultsEl.appendChild(card);
+        });
+        setStatus('Done! Pick your favorite and download it.');
+      } catch (e) {
+        setStatus('Network error: ' + e.message, true);
+      }
+      genBtn.disabled = false;
+    });
+  </script>
+</body>
+</html>
