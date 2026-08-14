@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About LumTale — Fair AI Portraits That Look Like You</title>
+  <meta name="description" content="Why we built LumTale: a fair AI portrait app that refuses to whiten or warp non-white faces. Meet the Lumling style, our two-door privacy philosophy, and our promise to your face.">
+  <meta name="keywords" content="about lumtale, fair ai portrait, no face whitening, identity preserving, honest ai avatar, lumling style, ai pfp privacy">
+  <meta name="author" content="LumTale">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#5a7d5a">
+  <link rel="canonical" href="https://lumtale.com/about.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="About LumTale — Fair AI Portraits That Look Like You">
+  <meta property="og:description" content="We refuse to whiten or warp non-white faces. Meet the Lumling style, our two-door privacy philosophy, and our promise to your face.">
+  <meta property="og:url" content="https://lumtale.com/about.html">
+  <meta property="og:site_name" content="LumTale">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="About LumTale — Fair AI Portraits That Look Like You">
+  <meta name="twitter:description" content="We refuse to whiten or warp non-white faces. Meet the Lumling style, our two-door privacy philosophy, and our promise to your face.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "name": "LumTale",
+        "url": "https://lumtale.com",
+        "description": "Fair, identity-preserving AI portraits. We never whiten or warp non-white faces; Door 2 uses a vetted GPU partner with honest disclosure."
+      },
+      {
+        "@type": "Organization",
+        "name": "LumTale",
+        "url": "https://lumtale.com",
+        "email": "hello@lumtale.com",
+        "description": "LumTale builds private AI avatar tools. Photos processed locally are never uploaded or used for training."
+      },
+      {
+        "@type": "AboutPage",
+        "name": "About LumTale",
+        "url": "https://lumtale.com/about.html",
+        "description": "Why we built LumTale, the Lumling style, our two-door privacy philosophy, and our promise to never whiten, warp, or train on your photo."
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root {
+      --bg: #f6f4ef;
+      --card: #ffffff;
+      --text: #3b3b3b;
+      --text-secondary: #6c6c6c;
+      --sage: #5a7d5a;
+      --sage-dark: #4a6b4a;
+      --caramel: #d4a574;
+      --caramel-light: #e8c9a8;
+      --border: #e8e6e0;
+      --shadow: rgba(0, 0, 0, 0.04);
+      --radius: 20px;
+      --radius-sm: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 80px 24px 48px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--sage);
+      margin-bottom: 48px;
+      letter-spacing: -0.02em;
+      text-decoration: none;
+    }
+    .brand::before {
+      content: "";
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--caramel);
+    }
+
+    h1 {
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      line-height: 1.05;
+      margin-bottom: 24px;
+      color: #2c3e2c;
+      letter-spacing: -0.03em;
+    }
+    h1 span { color: var(--caramel); }
+
+    h2 {
+      font-size: 1.75rem;
+      color: #2c3e2c;
+      margin-bottom: 20px;
+      letter-spacing: -0.01em;
+    }
+
+    .lead {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      margin-bottom: 40px;
+      max-width: 660px;
+    }
+
+    .promise-bar {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 10px 18px;
+      font-size: 0.9rem;
+      color: var(--sage-dark);
+      margin-bottom: 32px;
+    }
+    .promise-bar::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--sage);
+    }
+
+    .section {
+      margin-top: 64px;
+    }
+    .section:first-of-type { margin-top: 8px; }
+
+    .section p {
+      color: var(--text-secondary);
+      margin-bottom: 18px;
+      max-width: 720px;
+    }
+    .section p strong { color: var(--text); font-weight: 600; }
+    .section p a { color: var(--sage-dark); }
+
+    .door {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 32px;
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 30px var(--shadow);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .door::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+    }
+    .door.local::before { background: var(--sage); }
+    .door.cloud::before { background: var(--caramel); }
+
+    .door-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 16px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      width: fit-content;
+    }
+    .door.local .door-badge { background: #eef4ee; color: var(--sage-dark); }
+    .door.cloud .door-badge { background: #fdf6ee; color: #a67c52; }
+
+    .door h2 {
+      font-size: 1.4rem;
+      margin-bottom: 12px;
+      color: #2c3e2c;
+    }
+    .door p {
+      color: var(--text-secondary);
+      margin-bottom: 0;
+    }
+
+    .doors {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-top: 24px;
+    }
+
+    .promise-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .promise-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 22px;
+    }
+    .promise-item h3 {
+      font-size: 1.05rem;
+      color: var(--sage-dark);
+      margin-bottom: 8px;
+    }
+    .promise-item p {
+      color: var(--text-secondary);
+      font-size: 0.92rem;
+      margin-bottom: 0;
+    }
+
+    .roadmap {
+      list-style: none;
+      margin-top: 24px;
+    }
+    .roadmap li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 18px 20px;
+      margin-bottom: 12px;
+      color: var(--text-secondary);
+    }
+    .roadmap li::before {
+      content: "→";
+      color: var(--caramel);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .roadmap li strong { color: var(--text); font-weight: 600; }
+
+    .signup {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 40px 32px;
+      margin-top: 64px;
+      box-shadow: 0 8px 30px var(--shadow);
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+    .signup h2 {
+      font-size: 1.75rem;
+      margin-bottom: 12px;
+      color: #2c3e2c;
+    }
+    .signup > p {
+      color: var(--text-secondary);
+      margin-bottom: 28px;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .door-cta {
+      display: inline-block;
+      background: var(--sage);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 14px 28px;
+      border-radius: var(--radius-sm);
+      transition: background 0.2s ease;
+    }
+    .door-cta:hover { background: var(--sage-dark); }
+
+    .contact-note {
+      margin-top: 24px;
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+    }
+    .contact-note a { color: var(--sage-dark); text-decoration: none; }
+    .contact-note a:hover { text-decoration: underline; }
+
+    footer {
+      text-align: center;
+      margin-top: 80px;
+      color: #999;
+      font-size: 0.875rem;
+    }
+    footer a { color: var(--text-secondary); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 600px) {
+      .container { padding: 60px 20px 40px; }
+      .door { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a class="brand" href="/">LumTale</a>
+
+    <div class="promise-bar">One promise: your face stays your face — no whitening, no warping, no training on your photo.</div>
+
+    <h1>Why we built <span>LumTale</span>.</h1>
+    <p class="lead">
+      LumTale started with a frustrating observation: the apps we loved were quietly changing who we were. We built a fairer alternative — portraits that look like you, in a style that's genuinely our own.
+    </p>
+
+    <section class="section" aria-label="The founding insight">
+      <h2>The founding insight</h2>
+      <p>
+        A few years ago, one of our founders sent a childhood photo of her grandmother through a popular AI avatar app. The result was technically beautiful — and completely wrong. The warm, deep tones of her grandmother's skin had been lifted into something paler and "cleaner." The cheekbones had been narrowed. The face that came back looked less like the woman who raised her than like a generic template the app seemed to expect.
+      </p>
+      <p>
+        It wasn't a glitch. It was a pattern. Across most major avatar apps, <strong>non-white faces get quietly reshaped into something paler and more "standard."</strong> The models were trained mostly on light skin and Western features, so they nudged everyone toward that default. People of color, especially, paid a hidden cost: their portraits looked less like themselves and more like a flattened approximation of someone else.
+      </p>
+      <p>
+        We refused that. Identity is not a bug to be smoothed away. A portrait app should celebrate the face in front of it, not correct it toward an imagined norm. That conviction became the first line of LumTale's code and the last line of every paragraph on this site.
+      </p>
+    </section>
+
+    <section class="section" aria-label="The birth of the Lumling style">
+      <h2>The birth of the Lumling style</h2>
+      <p>
+        Once we knew what we were against, we had to decide what we were for. We didn't want a flat filter, and we didn't want to imitate the look of any single studio or artist. So we designed our own: <strong>Lumling</strong> — a warm, collectible-toy portrait style with soft rounded shapes, gentle earthy colors, and a friendly, handmade feel.
+      </p>
+      <p>
+        Lumling is a new visual language we created for LumTale. It is <strong>explicitly not a copy of any existing artist, franchise, or brand.</strong> We built it from scratch so that people who use LumTale get something that feels fresh and ours, while their real features — skin tone, eye shape, bone structure — stay unmistakably theirs. A Lumling portrait should make you think "that's me as a tiny treasured keepsake," not "that's a stock character."
+      </p>
+      <p>
+        Today Lumling lives in a few flavors: <strong>Lumling Dream</strong> for a dream-painted finish, <strong>Lumling Toon</strong> for a brighter cartoon look, and <strong>Lumling Studio</strong> for the deepest, most detailed renders. More are on the way.
+      </p>
+    </section>
+
+    <section class="section" aria-label="Our two-door philosophy">
+      <h2>Our two-door philosophy</h2>
+      <p>
+        Privacy isn't one-size-fits-all, so we built two honest ways in. You pick the door that fits the moment — and you always know which one you chose.
+      </p>
+      <div class="doors">
+        <div class="door local">
+          <div class="door-badge">Door 1 — Local</div>
+          <h2>Your device, your photo</h2>
+          <p>
+            Door 1 runs the model right in your browser using WebGPU. Your photo never leaves your machine, is never uploaded, and is never used to train anything. It's the most private way to get a Lumling portrait — and it's the door we point privacy-first users to first.
+          </p>
+        </div>
+        <div class="door cloud">
+          <div class="door-badge">Door 2 — Cloud</div>
+          <h2>Honest, premium rendering</h2>
+          <p>
+            Door 2 sends your photo to a vetted GPU partner for a higher-quality Lumling render. We're upfront about it: you'll see exactly where your photo goes before you upload, we link the partner's data policy, and we never store or train on your image. Honesty over fine print.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-label="Our promise">
+      <h2>Our promise to your face</h2>
+      <p>
+        Everything above comes down to three commitments we will not break. They aren't marketing lines — they're the rules our models and our code are built to honor.
+      </p>
+      <div class="promise-grid">
+        <div class="promise-item">
+          <h3>No whitening</h3>
+          <p>We don't lift or lighten your skin tone toward some "standard" shade. Your color is your color.</p>
+        </div>
+        <div class="promise-item">
+          <h3>No warping</h3>
+          <p>We don't narrow your features or reshape your bone structure. Your face stays your face.</p>
+        </div>
+        <div class="promise-item">
+          <h3>No training on you</h3>
+          <p>We never store your photo or train our models on it — local or cloud.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-label="What's next">
+      <h2>What's next</h2>
+      <p>
+        LumTale is early, and that's the exciting part. Here's a small, honest look at where we're headed:
+      </p>
+      <ul class="roadmap">
+        <li><strong>More Lumling styles</strong> — seasonal palettes and a soft "Lumling Classic" line for everyday profile pictures.</li>
+        <li><strong>Faster Door 1</strong> — shrinking the on-device model so private portraits render in seconds, even on laptops.</li>
+        <li><strong>Batch packs</strong> — turn a handful of photos into a matching Lumling set for the whole family.</li>
+        <li><strong>Transparency dashboard</strong> — a simple page showing exactly what each door does with your photo, in plain language.</li>
+      </ul>
+    </section>
+
+    <div class="signup">
+      <h2>Be part of the story</h2>
+      <p>We're opening LumTale to early members first. Join the waitlist and help us prove that fair, identity-preserving portraits can also be the ones people love most.</p>
+      <a class="door-cta" href="https://lumtale.com/#waitlist-form">Join the waitlist →</a>
+      <p class="contact-note">
+        Questions or thoughts? Email us anytime at <a href="mailto:hello@lumtale.com">hello@lumtale.com</a>.
+      </p>
+    </div>
+
+    <footer>
+      <p>© 2026 LumTale. Built for people who value their privacy.</p>
+      <p style="margin-top:8px;">
+        <a href="/privacy.html">Privacy</a> ·
+        <a href="/tos.html">Terms</a> ·
+        <a href="/about.html">About</a> ·
+        <a href="/blog/">Journal</a> ·
+        <a href="mailto:hello@lumtale.com">hello@lumtale.com</a>
+      </p>
+    </footer>
+  </div>
+</body>
+</html>

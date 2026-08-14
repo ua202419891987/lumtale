@@ -1,7 +1,11 @@
 # Cloudflare API Token — 绝不能进仓库（含部署权限）
 cf_token.txt
+cf_token.txt.txt
 # GitHub PAT — 临时用，绝不能进仓库
 gh_token.txt
+token.txt
+# 内部协作简报（不部署）
+AGENT-BRIEF.md
 
 # 早期打包失败的垃圾文件
 index.7z

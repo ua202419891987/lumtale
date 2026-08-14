@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms of Service — LumTale</title>
+  <meta name="description" content="The Terms of Service for LumTale: how you may use our fair-AI portrait tools (Door 1 local privacy tool and Door 2 cloud Lumling render), your rights to generated output, and our disclaimers.">
+  <meta name="keywords" content="lumtale terms of service, lumling terms, ai portrait terms, fair ai avatar terms">
+  <meta name="author" content="LumTale">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#5a7d5a">
+  <link rel="canonical" href="https://lumtale.com/tos.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Terms of Service — LumTale">
+  <meta property="og:description" content="How you may use LumTale's fair-AI portrait tools, your rights to generated output, and our disclaimers.">
+  <meta property="og:url" content="https://lumtale.com/tos.html">
+  <meta property="og:site_name" content="LumTale">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Terms of Service — LumTale">
+  <meta name="twitter:description" content="How you may use LumTale's fair-AI portrait tools, your rights to generated output, and our disclaimers.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "name": "LumTale",
+        "url": "https://lumtale.com",
+        "description": "Fair, identity-preserving AI portraits. We never whiten or warp non-white faces; Door 2 uses a vetted GPU partner with honest disclosure."
+      },
+      {
+        "@type": "Organization",
+        "name": "LumTale",
+        "url": "https://lumtale.com",
+        "email": "hello@lumtale.com",
+        "description": "LumTale builds private AI avatar tools. Photos processed locally are never uploaded or used for training."
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root {
+      --bg: #f6f4ef;
+      --card: #ffffff;
+      --text: #3b3b3b;
+      --text-secondary: #6c6c6c;
+      --sage: #5a7d5a;
+      --sage-dark: #4a6b4a;
+      --caramel: #d4a574;
+      --caramel-light: #e8c9a8;
+      --border: #e8e6e0;
+      --shadow: rgba(0, 0, 0, 0.04);
+      --radius: 20px;
+      --radius-sm: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 80px 24px 48px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--sage);
+      margin-bottom: 48px;
+      letter-spacing: -0.02em;
+    }
+    .brand::before {
+      content: "";
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--caramel);
+    }
+
+    h1 {
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      line-height: 1.05;
+      margin-bottom: 16px;
+      color: #2c3e2c;
+      letter-spacing: -0.03em;
+    }
+    h1 span {
+      color: var(--caramel);
+    }
+
+    .lead {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      margin-bottom: 40px;
+      max-width: 680px;
+    }
+
+    .updated {
+      display: inline-block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--sage-dark);
+      background: #eef4ee;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 8px 16px;
+      margin-bottom: 40px;
+    }
+
+    .toc {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      margin-bottom: 48px;
+      box-shadow: 0 8px 30px var(--shadow);
+    }
+    .toc h2 {
+      font-size: 1.1rem;
+      color: #2c3e2c;
+      margin-bottom: 14px;
+    }
+    .toc ol {
+      margin-left: 20px;
+      color: var(--text-secondary);
+    }
+    .toc li { margin-bottom: 8px; }
+    .toc a { color: var(--sage); text-decoration: none; }
+    .toc a:hover { text-decoration: underline; }
+
+    .section {
+      margin-bottom: 40px;
+    }
+    .section h2 {
+      font-size: 1.5rem;
+      color: #2c3e2c;
+      margin-bottom: 14px;
+      padding-top: 8px;
+    }
+    .section p {
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+    }
+    .section strong { color: var(--text); }
+    .section ul {
+      margin: 0 0 14px 22px;
+      color: var(--text-secondary);
+    }
+    .section li { margin-bottom: 8px; }
+
+    .section a { color: var(--sage); text-decoration: none; }
+    .section a:hover { text-decoration: underline; }
+
+    footer {
+      text-align: center;
+      margin-top: 80px;
+      color: #999;
+      font-size: 0.875rem;
+    }
+    footer a { color: var(--text-secondary); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 600px) {
+      .container { padding: 60px 20px 40px; }
+      .toc { padding: 22px 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="brand">LumTale</div>
+
+    <h1>Terms of <span>Service</span></h1>
+    <p class="lead">
+      These Terms of Service govern your use of LumTale — our fair-AI portrait tools that keep your face
+      faithfully yours. Please read them carefully. They explain what you may do with our service, what
+      you may not do, and how ownership of your generated portraits works.
+    </p>
+    <span class="updated">Last updated: January 1, 2026</span>
+
+    <nav class="toc" aria-label="Table of contents">
+      <h2>Contents</h2>
+      <ol>
+        <li><a href="#acceptance">Acceptance of Terms</a></li>
+        <li><a href="#eligibility">Eligibility</a></li>
+        <li><a href="#service">Description of the Service</a></li>
+        <li><a href="#acceptable-use">Acceptable Use &amp; Prohibited Conduct</a></li>
+        <li><a href="#ownership">AI Output Ownership &amp; License</a></li>
+        <li><a href="#partner">Door 2 Cloud Partner Relationship &amp; Disclaimer</a></li>
+        <li><a href="#warranty">No Warranty / Limitation of Liability</a></li>
+        <li><a href="#indemnification">Indemnification</a></li>
+        <li><a href="#termination">Termination</a></li>
+        <li><a href="#dmca">DMCA / Copyright Contact</a></li>
+        <li><a href="#governing-law">Governing Law</a></li>
+        <li><a href="#disputes">Disputes</a></li>
+        <li><a href="#changes">Changes to These Terms</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ol>
+    </nav>
+
+    <section class="section" id="acceptance">
+      <h2>1. Acceptance of Terms</h2>
+      <p>
+        By accessing or using LumTale (the "Service"), you agree to be bound by these Terms of Service
+        ("Terms") and by our Privacy Policy, which is incorporated here by reference. If you do not agree
+        with any part of these Terms, you may not use the Service. We may offer certain features that have
+        their own additional terms; in the event of a conflict, those additional terms govern the relevant
+        feature, but these Terms continue to apply to the rest of the Service.
+      </p>
+      <p>
+        You represent that you have the legal capacity to enter into this agreement. If you are using the
+        Service on behalf of a company, organization, or other legal entity, you represent that you have
+        the authority to bind that entity to these Terms, and "you" will refer to that entity.
+      </p>
+    </section>
+
+    <section class="section" id="eligibility">
+      <h2>2. Eligibility</h2>
+      <p>
+        The Service is intended for users who are at least 13 years of age. By using LumTale, you represent
+        and warrant that you are 13 or older. If you are between 13 and the age of legal majority in your
+        jurisdiction, you represent that you have your parent's or guardian's permission to use the Service.
+        We do not knowingly provide the Service to children under 13, and if we learn that we have collected
+        personal information from a child under 13, we will delete it as soon as reasonably possible.
+      </p>
+      <p>
+        LumTale is operated for and directed to users in the United States. The Service is provided and
+        governed under United States law. If you access the Service from outside the United States, you are
+        responsible for compliance with local laws, and you acknowledge that the Service may not be
+        available or appropriate in your jurisdiction. We may restrict access in regions where the Service
+        would violate applicable law.
+      </p>
+    </section>
+
+    <section class="section" id="service">
+      <h2>3. Description of the Service</h2>
+      <p>
+        LumTale provides fair, identity-preserving AI portrait generation under our original "Lumling"
+        style. We built the Service around a single promise: your face stays your face — no whitening, no
+        warping, no training on your photo. The Service is offered through two distinct doors, each with a
+        different privacy model:
+      </p>
+      <ul>
+        <li>
+          <strong>Door 1 — Local Privacy Tool.</strong> Door 1 runs entirely in your browser on your own
+          device using on-device inference (WebGPU/ONNX). The photo you use never leaves your device and is
+          never uploaded to our servers or to any third party. This is our most private option and requires
+          no account to explore.
+        </li>
+        <li>
+          <strong>Door 2 — Cloud Lumling Render.</strong> Door 2 produces a higher-fidelity, illustration-quality
+          Lumling portrait. To do this, the photo you submit is transmitted to a vetted third-party GPU
+          partner that performs the render on our behalf. We are transparent about this: before you upload,
+          we tell you your photo is leaving your device, we link the partner's data-use policy, and we do not
+          store or train on your images.
+        </li>
+      </ul>
+      <p>
+        We may modify, suspend, or discontinue any part of the Service at any time, including adding or
+        removing Lumling styles, adjusting quality, or changing which partner powers Door 2. We will try to
+        give reasonable notice of material changes but are not obligated to do so for routine improvements.
+      </p>
+    </section>
+
+    <section class="section" id="acceptable-use">
+      <h2>4. Acceptable Use &amp; Prohibited Conduct</h2>
+      <p>
+        You agree to use the Service only for lawful purposes and in accordance with these Terms. You are
+        solely responsible for the content you upload and for the portraits you generate. You agree not to:
+      </p>
+      <ul>
+        <li>Upload or submit any image that contains nudity, sexual content, or sexually explicit material.</li>
+        <li>Upload or submit any content that is unlawful, fraudulent, defamatory, harassing, hateful, or that promotes violence or self-harm.</li>
+        <li>Upload or submit any image that infringes the intellectual property, privacy, or publicity rights of any third party, or that depicts another identifiable person without a legal basis to do so.</li>
+        <li>Misrepresent your identity or the source of any content, or impersonate any person or entity.</li>
+        <li>Reverse-engineer, decompile, disassemble, or attempt to extract the source code, model weights, or underlying algorithms of the Service, including the on-device models and the Lumling style pipeline.</li>
+        <li>Attempt to circumvent, disable, or interfere with security features, rate limits, or access controls of the Service.</li>
+        <li>Abuse, overload, or disrupt the Service or its infrastructure (for example, through automated scraping, denial-of-service attempts, or shared-account abuse), or interfere with other users' enjoyment of the Service.</li>
+        <li>Use the Service to build a competing product or to train your own generative model, in whole or in part, using LumTale outputs or internal processes.</li>
+      </ul>
+      <p>
+        We reserve the right, but not the obligation, to review content and to refuse, remove, or block any
+        upload or output that we believe violates these Terms or applicable law. These decisions are made in
+        our discretion and do not create any duty on our part to monitor the Service.
+      </p>
+    </section>
+
+    <section class="section" id="ownership">
+      <h2>5. AI Output Ownership &amp; License</h2>
+      <p>
+        You retain ownership of the portraits and other outputs generated from your own photo ("Your
+        Outputs"). Subject to your compliance with these Terms, LumTale grants you a personal, worldwide,
+        non-exclusive license to use, download, share, and display Your Outputs for personal and
+        non-commercial purposes. Where the law permits you to hold intellectual property rights in
+        AI-generated content, those rights belong to you, not to us.
+      </p>
+      <p>
+        LumTale retains all rights, title, and interest in and to the Lumling style, the Service's
+        software, model weights, brand assets, design, and any improvements or derivatives of them. The
+        Lumling name and look are original to LumTale and are not derived from any third-party artist or
+        brand. Nothing in these Terms transfers ownership of the Lumling style or the Service to you, and
+        you may not claim ownership of, register, or sell the Lumling style, name, or brand as your own.
+      </p>
+      <p>
+        Your Outputs are provided <strong>"as is"</strong>, without warranty of any kind as to accuracy,
+        merchantability, fitness for a particular purpose, or non-infringement. We do not warrant that any
+        output will be unique, that it will match your expectations, or that it will be free from defects.
+        You are responsible for confirming that your use of an output complies with applicable law and the
+        rights of others.
+      </p>
+    </section>
+
+    <section class="section" id="partner">
+      <h2>6. Door 2 Cloud Partner Relationship &amp; Disclaimer</h2>
+      <p>
+        Door 2 is powered by one or more independent third-party GPU processing partners ("Processing
+        Partners") that perform the cloud render on our behalf. LumTale is not the operator of the
+        Processing Partner's infrastructure. When you use Door 2, your photo is transmitted to the
+        Processing Partner for the limited purpose of generating your Lumling portrait, and is handled
+        according to the Processing Partner's own data-use policy, which we link before you upload.
+      </p>
+      <p>
+        We select and monitor our Processing Partners with care, but we make no representation or warranty
+        regarding the Processing Partner's services, security, or conduct beyond what is stated in our
+        Privacy Policy. To the fullest extent permitted by law, LumTale is not liable for any act, omission,
+        or failure of any Processing Partner, including any loss, unauthorized access, or disclosure that
+        occurs while your photo is in the Partner's environment. Your recourse for any such event is governed
+        by the agreement between you and the Processing Partner as disclosed at upload time.
+      </p>
+    </section>
+
+    <section class="section" id="warranty">
+      <h2>7. No Warranty / Limitation of Liability</h2>
+      <p>
+        THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE," WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS
+        OR IMPLIED, INCLUDING THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND
+        NON-INFRINGEMENT. WE DO NOT WARRANT THAT THE SERVICE WILL BE UNINTERRUPTED, TIMELY, SECURE, OR
+        ERROR-FREE, OR THAT ANY DEFECTS WILL BE CORRECTED.
+      </p>
+      <p>
+        TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL LUMTALE, ITS AFFILIATES,
+        OFFICERS, EMPLOYEES, AGENTS, OR SUPPLIERS BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL,
+        CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR FOR ANY LOSS OF PROFITS, REVENUE, DATA, OR GOODWILL, ARISING
+        OUT OF OR IN CONNECTION WITH YOUR USE OF, OR INABILITY TO USE, THE SERVICE. OUR TOTAL AGGREGATE
+        LIABILITY FOR ANY CLAIM ARISING FROM THE SERVICE SHALL NOT EXCEED THE GREATER OF (A) THE AMOUNT YOU
+        PAID US, IF ANY, IN THE TWELVE MONTHS PRECEDING THE EVENT, OR (B) TWENTY-FIVE US DOLLARS ($25).
+      </p>
+      <p>
+        Some jurisdictions do not allow the exclusion or limitation of certain warranties or liabilities, so
+        some of the above limitations may not apply to you.
+      </p>
+    </section>
+
+    <section class="section" id="indemnification">
+      <h2>8. Indemnification</h2>
+      <p>
+        You agree to defend, indemnify, and hold harmless LumTale and its affiliates, officers, employees,
+        agents, and suppliers from and against any claims, liabilities, damages, losses, costs, and
+        expenses (including reasonable attorneys' fees) arising out of or in any way connected with: (a) your
+        use of the Service; (b) your violation of these Terms; (c) any content you upload or any output you
+        generate or share; or (d) your infringement of any third party's rights. We reserve the right to
+        assume the exclusive defense of any matter for which you are required to indemnify us, and you agree
+        to cooperate with that defense.
+      </p>
+    </section>
+
+    <section class="section" id="termination">
+      <h2>9. Termination</h2>
+      <p>
+        We may suspend or terminate your access to the Service, in whole or in part, at any time and for any
+        reason, including if we believe you have violated these Terms, without prior notice and without
+        liability to you. You may stop using the Service at any time. Upon termination, your right to use the
+        Service ends immediately, and any license granted to you under these Terms ceases.
+      </p>
+      <p>
+        Sections of these Terms that by their nature should survive termination will survive, including
+        ownership and license provisions, warranty disclaimers, limitation of liability, indemnification,
+        governing law, and dispute-resolution clauses. Termination does not affect any rights or obligations
+        that arose before termination.
+      </p>
+    </section>
+
+    <section class="section" id="dmca">
+      <h2>10. DMCA / Copyright Contact</h2>
+      <p>
+        If you believe that content available through the Service infringes your copyright, you may notify us
+        by sending a written notice that includes: (a) a physical or electronic signature of the copyright
+        owner or authorized agent; (b) identification of the copyrighted work claimed to be infringed; (c)
+        identification of the material and enough information for us to locate it; (d) your contact
+        information; (e) a good-faith statement that the use is not authorized; and (f) a statement, under
+        penalty of perjury, that the notice is accurate. We will respond and, where appropriate, remove or
+        disable access to the material. Our designated copyright contact is <a href="mailto:hello@lumtale.com">hello@lumtale.com</a>.
+      </p>
+    </section>
+
+    <section class="section" id="governing-law">
+      <h2>11. Governing Law</h2>
+      <p>
+        These Terms, and any dispute or claim arising out of or related to them or the Service, are governed
+        by and construed in accordance with the laws of the <strong>State of Delaware, USA</strong>, without
+        regard to its conflict-of-laws principles. If you are a consumer, nothing in this section deprives
+        you of any mandatory consumer-protection rights you may have under the laws of your place of residence.
+      </p>
+    </section>
+
+    <section class="section" id="disputes">
+      <h2>12. Disputes</h2>
+      <p>
+        Except where prohibited by law, you agree that any dispute arising out of or relating to the Service
+        or these Terms will be resolved through good-faith discussion first. If a dispute cannot be resolved
+        informally, it will be brought exclusively in the state or federal courts located in Delaware, and
+        you consent to the personal jurisdiction of those courts. Where permitted, and at LumTale's
+        discretion, disputes may instead be resolved through binding arbitration on an individual basis; you
+        and LumTale each waive any right to a class action or representative proceeding to the fullest extent
+        allowed by law.
+      </p>
+    </section>
+
+    <section class="section" id="changes">
+      <h2>13. Changes to These Terms</h2>
+      <p>
+        We may update these Terms from time to time to reflect changes in the Service, the law, or our
+        practices. When we make material changes, we will revise the "Last updated" date at the top of this
+        page and, where appropriate, provide additional notice (for example, through the Service or by
+        email). Your continued use of the Service after the changes take effect constitutes acceptance of the
+        revised Terms. If you do not agree to the revised Terms, you should stop using the Service.
+      </p>
+    </section>
+
+    <section class="section" id="contact">
+      <h2>14. Contact</h2>
+      <p>
+        If you have any questions about these Terms or the Service, you can reach us at
+        <a href="mailto:hello@lumtale.com">hello@lumtale.com</a>. We read every message and will do our best
+        to respond promptly.
+      </p>
+    </section>
+
+    <footer>
+      <p>© 2026 LumTale. Built for people who value their privacy.</p>
+      <p style="margin-top:8px;">
+        <a href="/privacy.html">Privacy</a> ·
+        <a href="/tos.html">Terms</a> ·
+        <a href="/about.html">About</a> ·
+        <a href="/blog/">Journal</a> ·
+        <a href="mailto:hello@lumtale.com">hello@lumtale.com</a>
+      </p>
+    </footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pricing — LumTale: Fair AI Portraits That Look Like You</title>
+  <meta name="description" content="Simple, honest pricing for LumTale. Door 1 runs free on your own device — no cost, no upload. Door 2 gives you premium Lumling Studio renders with clear, fair US$ tiers.">
+  <meta name="keywords" content="ai avatar pricing, free local ai avatar, lumling studio cost, privacy-first portrait pricing, fair ai portrait plans">
+  <meta name="author" content="LumTale">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#5a7d5a">
+  <link rel="canonical" href="https://lumtale.com/pricing.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Pricing — LumTale: Fair AI Portraits That Look Like You">
+  <meta property="og:description" content="Door 1 is free forever and runs on your device. Door 2 adds premium Lumling Studio renders with honest, fair US$ pricing.">
+  <meta property="og:url" content="https://lumtale.com/pricing.html">
+  <meta property="og:site_name" content="LumTale">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Pricing — LumTale: Fair AI Portraits That Look Like You">
+  <meta name="twitter:description" content="Free local portraits, plus honest premium Lumling Studio tiers. No whitening, no warping, no sneaky training on your photo.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "name": "LumTale",
+        "url": "https://lumtale.com",
+        "description": "Fair, identity-preserving AI portraits. Door 1 runs free on your device; Door 2 uses a vetted GPU partner with honest disclosure."
+      },
+      {
+        "@type": "Organization",
+        "name": "LumTale",
+        "url": "https://lumtale.com",
+        "email": "hello@lumtale.com",
+        "description": "LumTale builds private AI avatar tools with simple, honest pricing. Photos processed locally are never uploaded or used for training."
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root {
+      --bg: #f6f4ef;
+      --card: #ffffff;
+      --text: #3b3b3b;
+      --text-secondary: #6c6c6c;
+      --sage: #5a7d5a;
+      --sage-dark: #4a6b4a;
+      --caramel: #d4a574;
+      --caramel-light: #e8c9a8;
+      --border: #e8e6e0;
+      --shadow: rgba(0, 0, 0, 0.04);
+      --radius: 20px;
+      --radius-sm: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 80px 24px 48px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--sage);
+      margin-bottom: 48px;
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+    .brand::before {
+      content: "";
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--caramel);
+    }
+
+    h1 {
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      line-height: 1.05;
+      margin-bottom: 24px;
+      color: #2c3e2c;
+      letter-spacing: -0.03em;
+    }
+    h1 span {
+      color: var(--caramel);
+    }
+
+    .lead {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+      max-width: 640px;
+    }
+
+    .promise-bar {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 10px 18px;
+      font-size: 0.9rem;
+      color: var(--sage-dark);
+      margin-bottom: 48px;
+    }
+    .promise-bar::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--sage);
+    }
+
+    .doors-intro {
+      margin-bottom: 8px;
+    }
+
+    .doors {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin: 32px 0 8px;
+    }
+
+    /* Door 1 — Free, local */
+    .door {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 32px;
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 30px var(--shadow);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+    .door::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+    }
+    .door.local::before { background: var(--sage); }
+    .door.cloud::before { background: var(--caramel); }
+
+    .door-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 16px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      width: fit-content;
+    }
+    .door.local .door-badge { background: #eef4ee; color: var(--sage-dark); }
+    .door.cloud .door-badge { background: #fdf6ee; color: #a67c52; }
+
+    .door h2 {
+      font-size: 1.5rem;
+      margin-bottom: 6px;
+      color: #2c3e2c;
+    }
+
+    .price {
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: #2c3e2c;
+      margin-bottom: 4px;
+      letter-spacing: -0.02em;
+    }
+    .price span {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+    .price-note {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+    }
+
+    .door p {
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+      flex-grow: 1;
+    }
+
+    .door-features {
+      list-style: none;
+      margin-bottom: 24px;
+    }
+    .door-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+    .door-features li::before {
+      content: "✓";
+      color: var(--sage);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .door.cloud .door-features li::before { color: var(--caramel); }
+
+    .door-cta {
+      display: inline-block;
+      background: var(--sage);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 12px 22px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 16px;
+      text-align: center;
+      transition: background 0.2s ease;
+    }
+    .door-cta:hover { background: var(--sage-dark); }
+    .door.cloud .door-cta {
+      background: var(--caramel);
+    }
+    .door.cloud .door-cta:hover { background: #c08f5c; }
+
+    .door-status {
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      text-align: center;
+    }
+    .door.local .door-status { background: #eef4ee; color: var(--sage-dark); }
+    .door.cloud .door-status { background: #fdf6ee; color: #a67c52; }
+
+    /* Door 2 tiers */
+    .tiers {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+      margin: 24px 0 16px;
+    }
+
+    .tier {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 32px;
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 30px var(--shadow);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+    .tier.featured {
+      border: 2px solid var(--caramel);
+    }
+    .tier-badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: var(--caramel);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+    .tier h3 {
+      font-size: 1.3rem;
+      color: #2c3e2c;
+      margin-bottom: 4px;
+    }
+    .tier .price small {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+    .tier .price-note {
+      margin-bottom: 18px;
+    }
+
+    .checkout-note {
+      background: #fdf6ee;
+      border: 1px solid #f0e2cf;
+      border-radius: var(--radius-sm);
+      padding: 16px 20px;
+      font-size: 0.92rem;
+      color: #8a6a47;
+      margin: 8px 0 56px;
+      text-align: center;
+    }
+    .checkout-note strong { color: #6f5232; }
+
+    .faq {
+      margin-top: 24px;
+    }
+    .faq h2 {
+      font-size: 1.5rem;
+      color: #2c3e2c;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .faq-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .faq-item h3 {
+      font-size: 1.05rem;
+      color: #2c3e2c;
+      margin-bottom: 8px;
+    }
+    .faq-item p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+    .faq-item a { color: var(--sage-dark); font-weight: 600; }
+
+    .why {
+      margin-top: 64px;
+    }
+    .why h2 {
+      font-size: 1.5rem;
+      color: #2c3e2c;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .why p {
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      max-width: 720px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .why strong { color: var(--text); }
+
+    footer {
+      text-align: center;
+      margin-top: 80px;
+      color: #999;
+      font-size: 0.875rem;
+    }
+    footer a { color: var(--text-secondary); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 600px) {
+      .container { padding: 60px 20px 40px; }
+      .door { padding: 24px; }
+      .tier { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a class="brand" href="/">LumTale</a>
+
+    <div class="promise-bar">One promise: your face stays your face — no whitening, no warping, no training on your photo.</div>
+
+    <h1>Simple, honest <span>pricing</span>.</h1>
+    <p class="lead">
+      LumTale is built on a two-door model: keep everything on your own device for free, or step through the cloud door for a premium <strong>Lumling Studio</strong> render. No dark patterns, no hidden training on your photo, no "free trial" that quietly bills you later.
+    </p>
+
+    <div class="doors">
+      <div class="door local">
+        <div class="door-badge">Door 1 — Local &amp; Free</div>
+        <h2>Free forever</h2>
+        <div class="price">$0<span> / forever</span></div>
+        <div class="price-note">Runs on your device. No account required.</div>
+        <p>
+          Door 1 processes your photo entirely in your browser with on-device WebGPU inference. Your image never leaves your machine — so there's nothing to upload, nothing to bill, and nothing to store.
+        </p>
+        <ul class="door-features">
+          <li>Always free — no trial, no card, no catch</li>
+          <li>Runs 100% on your device; no upload</li>
+          <li>Identity-preserving Lumling-style preview</li>
+          <li>We never see, store, or train on your photo</li>
+        </ul>
+        <a class="door-cta" href="/door1.html">Try Door 1 free →</a>
+        <div class="door-status">Available now — your photo never leaves your device</div>
+      </div>
+
+      <div class="door cloud">
+        <div class="door-badge">Door 2 — Cloud Studio</div>
+        <h2>Premium renders</h2>
+        <div class="price">From $4.99<span> / render</span></div>
+        <div class="price-note">Pay only when you want a cloud-quality portrait.</div>
+        <p>
+          Door 2 sends your photo to a vetted GPU partner for a higher-quality, illustration-grade Lumling portrait. We're honest that it leaves your device, and we never store or train on it.
+        </p>
+        <ul class="door-features">
+          <li>Lumling Dream &amp; Lumling Toon styles</li>
+          <li>High-resolution, share-ready exports</li>
+          <li>Identity-preserving — your face stays yours</li>
+          <li>Honest upload to a vetted GPU partner</li>
+        </ul>
+        <a class="door-cta" href="/door2.html">Open Door 2 →</a>
+        <div class="door-status">Live now — secure checkout coming soon</div>
+      </div>
+    </div>
+
+    <h2 class="doors-intro" style="font-size:1.4rem;color:#2c3e2c;margin-top:24px;">Door 2 plans</h2>
+    <div class="tiers">
+      <div class="tier">
+        <h3>Single render</h3>
+        <div class="price">$4.99</div>
+        <div class="price-note">One premium portrait, no subscription.</div>
+        <ul class="door-features">
+          <li>1 Lumling Studio render</li>
+          <li>Choose Lumling Dream or Lumling Toon</li>
+          <li>High-resolution download</li>
+          <li>Personal, non-commercial use</li>
+        </ul>
+        <a class="door-cta" href="/door2.html">Start a render →</a>
+      </div>
+
+      <div class="tier">
+        <h3>5-pack</h3>
+        <div class="price">$9.99</div>
+        <div class="price-note">Best value — about $2.00 per render.</div>
+        <ul class="door-features">
+          <li>5 Lumling Studio renders</li>
+          <li>Mix Dream &amp; Toon styles freely</li>
+          <li>High-resolution downloads</li>
+          <li>Personal, non-commercial use</li>
+        </ul>
+        <a class="door-cta" href="/door2.html">Get the 5-pack →</a>
+      </div>
+
+      <div class="tier featured">
+        <div class="tier-badge">Most loved</div>
+        <h3>Lumling Club</h3>
+        <div class="price">$19.99<span> / mo</span></div>
+        <div class="price-note">Monthly membership for portrait fans.</div>
+        <ul class="door-features">
+          <li>30 Lumling Studio renders every month</li>
+          <li>All styles, including early access drops</li>
+          <li>High-resolution, commercial-use license</li>
+          <li>Priority processing on the GPU partner</li>
+        </ul>
+        <a class="door-cta" href="/door2.html">Join the Club →</a>
+      </div>
+    </div>
+
+    <div class="checkout-note">
+      <strong>Secure checkout via Stripe / Paddle — coming soon.</strong>
+      Payments aren't live yet, so nothing is billed today. When checkout launches, your purchase will be processed by Stripe or Paddle; we never handle your card details ourselves.
+    </div>
+
+    <section class="why" aria-label="Why this pricing model">
+      <h2>Why two doors, and why this pricing?</h2>
+      <p>
+        Most avatar apps hide a simple truth: to look good, your photo has to leave your device and get processed somewhere you can't see. LumTale makes that choice <strong>visible</strong>. Door 1 is genuinely free because it costs us nothing to run — your phone or laptop does the work, and your photo never travels. We'd rather earn your trust than your data.
+      </p>
+      <p>
+        Door 2 costs real money because it uses a GPU partner's compute to deliver a more refined <strong>Lumling</strong> portrait. We price it fairly and à la carte: buy one render, a small pack, or a monthly club — no forced subscription, no auto-renewal traps. And whichever door you pick, your face stays faithfully your face: <strong>no whitening, no warping</strong>, and never used for training.
+      </p>
+    </section>
+
+    <div class="faq">
+      <h2>Pricing FAQ</h2>
+
+      <div class="faq-item">
+        <h3>Can I use Door 1 forever, for free?</h3>
+        <p>
+          Yes. Door 1 is free and always will be. It runs entirely on your device with no account, no upload, and no expiry. We offer it because privacy shouldn't be a paid feature — and because it costs us nothing to let you keep your photo on your own machine.
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>What's included in a Door 2 purchase?</h3>
+        <p>
+          Every Door 2 purchase includes a high-resolution <strong>Lumling</strong> render in the style you choose (Lumling Dream or Lumling Toon), a downloadable file, and identity-preserving generation so your features stay yours. Single renders and 5-packs are for personal, non-commercial use. The Lumling Club monthly plan adds a commercial-use license and 30 renders per month.
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>What about refunds?</h3>
+        <p>
+          We want you to love your portrait. If a render fails or isn't delivered, contact <a href="mailto:hello@lumtale.com">hello@lumtale.com</a> within 14 days and we'll re-run it or refund you — no questions asked. Because renders are personalized digital output, we handle refunds case by case rather than as an automatic "one-click" button, which keeps the price fair for everyone.
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>Is my photo used for training?</h3>
+        <p>
+          Never. With Door 1 your photo never leaves your device. With Door 2 it goes to a vetted GPU partner strictly to generate your portrait on demand; neither LumTale nor the partner stores or trains on it. That honesty is the whole point of LumTale.
+        </p>
+      </div>
+    </div>
+
+    <footer>
+      <p>© 2026 LumTale. Built for people who value their privacy.</p>
+      <p style="margin-top:8px;">
+        <a href="/privacy.html">Privacy</a> ·
+        <a href="/tos.html">Terms</a> ·
+        <a href="/about.html">About</a> ·
+        <a href="/blog/">Journal</a> ·
+        <a href="mailto:hello@lumtale.com">hello@lumtale.com</a>
+      </p>
+    </footer>
+  </div>
+</body>
+</html>

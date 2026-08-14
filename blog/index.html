@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The LumTale Journal — Fair AI Portraits, Honestly</title>
+  <meta name="description" content="The LumTale Journal writes about fair AI portraits, privacy, and the Lumling style. No whitening, no warping — honest takes on AI avatars that look like you.">
+  <meta name="keywords" content="fair ai portrait blog, ai avatar privacy, ghibli ai portrait trend, lumling style, how to make cartoon avatar, no face warping">
+  <meta name="author" content="LumTale">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#5a7d5a">
+  <link rel="canonical" href="https://lumtale.com/blog/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="The LumTale Journal — Fair AI Portraits, Honestly">
+  <meta property="og:description" content="LumTale's blog on fair AI portraits, privacy, and the Lumling style — no whitening, no warping, just honest takes.">
+  <meta property="og:url" content="https://lumtale.com/blog/">
+  <meta property="og:site_name" content="LumTale">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="The LumTale Journal — Fair AI Portraits, Honestly">
+  <meta name="twitter:description" content="Fair AI portraits, privacy, and the Lumling style — honest writing from the team behind LumTale.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "name": "LumTale",
+        "url": "https://lumtale.com",
+        "description": "Fair, identity-preserving AI portraits. We never whiten or warp non-white faces; the Lumling style keeps your features faithfully yours."
+      },
+      {
+        "@type": "Organization",
+        "name": "LumTale",
+        "url": "https://lumtale.com",
+        "email": "hello@lumtale.com",
+        "description": "LumTale builds private, identity-preserving AI avatar tools. Photos processed locally are never uploaded or used for training."
+      },
+      {
+        "@type": "Blog",
+        "name": "The LumTale Journal",
+        "url": "https://lumtale.com/blog/",
+        "publisher": {
+          "@type": "Organization",
+          "name": "LumTale",
+          "email": "hello@lumtale.com"
+        },
+        "description": "Essays and guides on fair AI portraits, AI avatar privacy, and the Lumling style."
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root {
+      --bg: #f6f4ef;
+      --card: #ffffff;
+      --text: #3b3b3b;
+      --text-secondary: #6c6c6c;
+      --sage: #5a7d5a;
+      --sage-dark: #4a6b4a;
+      --caramel: #d4a574;
+      --caramel-light: #e8c9a8;
+      --border: #e8e6e0;
+      --shadow: rgba(0, 0, 0, 0.04);
+      --radius: 20px;
+      --radius-sm: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 80px 24px 48px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--sage);
+      margin-bottom: 48px;
+      letter-spacing: -0.02em;
+    }
+    .brand::before {
+      content: "";
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--caramel);
+    }
+
+    h1 {
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      line-height: 1.05;
+      margin-bottom: 24px;
+      color: #2c3e2c;
+      letter-spacing: -0.03em;
+    }
+    h1 span {
+      color: var(--caramel);
+    }
+
+    .lead {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      margin-bottom: 48px;
+      max-width: 640px;
+    }
+
+    .promise-bar {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 10px 18px;
+      font-size: 0.9rem;
+      color: var(--sage-dark);
+      margin-bottom: 32px;
+    }
+    .promise-bar::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--sage);
+    }
+
+    .mission {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 36px 32px;
+      margin: 8px 0 56px;
+      box-shadow: 0 8px 30px var(--shadow);
+    }
+    .mission h2 {
+      font-size: 1.4rem;
+      color: #2c3e2c;
+      margin-bottom: 14px;
+    }
+    .mission p {
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+      font-size: 1rem;
+    }
+    .mission p:last-child { margin-bottom: 0; }
+    .mission strong { color: var(--text); }
+
+    .section-title {
+      font-size: 1.5rem;
+      color: #2c3e2c;
+      margin-bottom: 24px;
+    }
+
+    .posts {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 64px;
+    }
+
+    .post-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 28px;
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 30px var(--shadow);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .post-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: var(--caramel);
+    }
+    .post-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.08);
+    }
+
+    .post-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 14px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      width: fit-content;
+      background: #fdf6ee;
+      color: #a67c52;
+    }
+
+    .post-card h3 {
+      font-size: 1.25rem;
+      line-height: 1.25;
+      color: #2c3e2c;
+      margin-bottom: 12px;
+    }
+    .post-card p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+      flex-grow: 1;
+    }
+
+    .post-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--sage);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: color 0.2s ease, gap 0.2s ease;
+    }
+    .post-cta:hover {
+      color: var(--sage-dark);
+      gap: 10px;
+    }
+
+    .back-home {
+      display: inline-block;
+      margin-top: 8px;
+      margin-bottom: 56px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+    .back-home:hover { color: var(--sage-dark); text-decoration: underline; }
+
+    footer {
+      text-align: center;
+      margin-top: 32px;
+      color: #999;
+      font-size: 0.875rem;
+    }
+    footer a { color: var(--text-secondary); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 600px) {
+      .container { padding: 60px 20px 40px; }
+      .post-card { padding: 24px; }
+      .mission { padding: 28px 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a class="brand" href="../index.html">LumTale</a>
+
+    <div class="promise-bar">One promise: your face stays your face — no whitening, no warping, no training on your photo.</div>
+
+    <h1>The LumTale Journal —<br>fair AI portraits, <span>honestly</span>.</h1>
+    <p class="lead">
+      Notes from the team building LumTale: why fair representation matters, where your photo actually goes, and how the Lumling style keeps your features faithfully yours.
+    </p>
+
+    <section class="mission" aria-label="Blog mission">
+      <h2>Why this blog exists</h2>
+      <p>
+        Most AI avatar apps don't just restyle your photo — they quietly <strong>reshape non-white faces</strong> into something paler and more "standard." We started LumTale to refuse that, and this journal is where we write about it in the open.
+      </p>
+      <p>
+        Here you'll find honest pieces on <strong>fair representation</strong> (no whitening, no warping), plain-English explainers on <strong>privacy</strong> (what happens to your upload, and what doesn't), and a closer look at the <strong>Lumling style</strong> — our own warm, collectible-toy portrait look that keeps your identity intact.
+      </p>
+      <p>
+        No hype, no hidden training. Just the thinking behind portraits that look like <strong>you</strong>.
+      </p>
+    </section>
+
+    <h2 class="section-title">Upcoming posts</h2>
+    <div class="posts">
+      <article class="post-card">
+        <span class="post-tag">Trend</span>
+        <h3>The Ghibli-style AI portrait trend, explained</h3>
+        <p>Where the Ghibli-filtered avatar wave came from, why it took off, and what it gets right (and wrong) about fair representation.</p>
+        <a class="post-cta" href="ghibli-ai-portrait-trend.html">Read →</a>
+      </article>
+
+      <article class="post-card">
+        <span class="post-tag">Privacy</span>
+        <h3>AI avatar privacy: what happens to your photo</h3>
+        <p>A clear, no-jargon breakdown of where your selfie travels, who can see it, and how LumTale keeps it off training sets.</p>
+        <a class="post-cta" href="ai-avatar-privacy.html">Read →</a>
+      </article>
+
+      <article class="post-card">
+        <span class="post-tag">How-to</span>
+        <h3>How to make a cartoon avatar that looks like you</h3>
+        <p>A step-by-step guide to turning a photo into a Lumling-style cartoon avatar without losing your features along the way.</p>
+        <a class="post-cta" href="how-to-make-cartoon-avatar.html">Read →</a>
+      </article>
+
+      <article class="post-card">
+        <span class="post-tag">Style</span>
+        <h3>Lumling styles, explained: Dream, Toon &amp; Studio</h3>
+        <p>What makes the Lumling look distinct, and how to pick between Lumling Dream, Lumling Toon, and Lumling Studio for your portrait.</p>
+        <a class="post-cta" href="lumling-styles-explained.html">Read →</a>
+      </article>
+    </div>
+
+    <a class="back-home" href="../index.html">← Back to LumTale</a>
+
+    <footer>
+      <p>© 2026 LumTale. Built for people who value their privacy.</p>
+      <p style="margin-top:8px;">
+        <a href="../privacy.html">Privacy</a> ·
+        <a href="../tos.html">Terms</a> ·
+        <a href="../about.html">About</a> ·
+        <a href="../blog/">Journal</a> ·
+        <a href="mailto:hello@lumtale.com">hello@lumtale.com</a>
+      </p>
+    </footer>
+  </div>
+</body>
+</html>
