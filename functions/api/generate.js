@@ -115,21 +115,21 @@ export async function onRequestPost({ request, env }) {
   }
 
   // (4) Pass the chosen style through to the model inputs.
+  // NOTE: Only parameters confirmed in the model README are sent. `guidance_scale`,
+  // `num_outputs` and `scheduler` are NOT in zsxkib/instant-id-ipadapter-plus-face's
+  // schema — sending them would cause a 400 from Replicate. Single output keeps cost
+  // at ~$0.023/run (the frontend already handles a single URL).
   const prompt = PROMPTS[style];
   const input = {
     image,
     prompt,
-    style, // echo the chosen style so downstream status/render can reference it
     negative_prompt: NEGATIVE,
     width: 1024,
     height: 1024,
     num_inference_steps: 30,
-    guidance_scale: 6.5,
-    num_outputs: 4,
-    instantid_weight: 0.85, // keep face structure faithful to the original
+    instantid_weight: 0.8, // keep face structure faithful to the original
     ipadapter_weight: 0.7,
     ipadapter_weight_type: "style transfer precise",
-    scheduler: "ddpm",
     seed: body.seed != null ? body.seed : Math.floor(Math.random() * 1e9),
   };
 

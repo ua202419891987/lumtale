@@ -88,7 +88,7 @@ export async function onRequestGet({ request, env }) {
         images = p.output.images || p.output.image || [];
         if (typeof images === "string") images = [images];
       }
-      return json({ success: true, status: "done", images });
+      return json({ success: true, status: "succeeded", output: images });
     }
 
     if (status === "failed" || status === "canceled") {
