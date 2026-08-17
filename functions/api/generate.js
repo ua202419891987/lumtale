@@ -6,7 +6,11 @@
 // (Pages dashboard → your project → Settings → Environment variables). It is read at
 // runtime via the `env` object and is never shipped to the client.
 
-const MODEL = "zsxkib/instant-id-ipadapter-plus-face";
+// Model is pinned by VERSION hash (not the /v1/models/{owner}/{name}/predictions
+// shortcut), because zsxkib/instant-id-ipadapter-plus-face does NOT support the
+// model-name predictions endpoint (returns 404). The version-hash endpoint
+// (POST /v1/predictions with `version`) is the reliable path.
+const MODEL_VERSION = "32402fb5c493d883aa6cf098ce3e4cc80f1fe6871f6ae7f632a8dbde01a3d161";
 
 // Allowed styles. Anything else is rejected with 400 before we touch Replicate.
 const ALLOWED_STYLES = ["dream", "toon", "studio"];
@@ -135,20 +139,29 @@ export async function onRequestPost({ request, env }) {
 
   // --- (3) Proxy to Replicate with friendly upstream error handling ---
   try {
-    const res = await fetch(`https://api.replicate.com/v1/models/${MODEL}/predictions`, {
+    const res = await fetch(`https://api.replicate.com/v1/predictions`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ input }),
+      body: JSON.stringify({ version: MODEL_VERSION, input }),
     });
 
     if (!res.ok) {
-      // Replicate itself failed — surface a clean 502 to the client.
+      // Replicate itself failed — surface a clean 502 to the client, but pass
+      // through the upstream detail (e.g. "Insufficient credit") so the caller
+      // gets an actionable reason instead of a generic retry message.
+      let detail = "";
+      try {
+        const err = await res.json();
+        detail = err?.detail ? ` (${err.detail})` : "";
+      } catch (_) {
+        /* ignore non-JSON upstream error bodies */
+      }
       console.error("Replicate create failed:", res.status, await safeText(res));
       return json(
-        { success: false, message: "Render partner unavailable, please retry." },
+        { success: false, message: `Render partner unavailable, please retry.${detail}` },
         502
       );
     }
