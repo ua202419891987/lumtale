@@ -171,6 +171,40 @@
     .error-box.soon .btn{ background:var(--sage); }
     .error-box.soon .btn:hover{ background:var(--sage-dark); }
 
+    /* Paywall */
+    .paywall{
+      display:none; margin-top:22px; border-radius:var(--radius-sm);
+      border:1px solid var(--border); background:#fff; padding:20px 22px;
+    }
+    .paywall.show{ display:block; }
+    .paywall h3{ font-size:1.05rem; color:#2c3e2c; margin-bottom:6px; }
+    .paywall > p{ font-size:0.9rem; color:var(--text-secondary); margin-bottom:16px; }
+    .plans{ display:flex; gap:12px; flex-wrap:wrap; }
+    .plan{
+      flex:1; min-width:150px; text-align:center; cursor:pointer; font-family:inherit;
+      border:1.5px solid var(--border); border-radius:var(--radius-sm); background:#fcfbf8;
+      padding:14px 12px; transition:border-color .2s, background .2s, box-shadow .2s;
+    }
+    .plan:hover{ border-color:var(--sage); }
+    .plan .plan-name{ display:block; font-weight:600; color:var(--text); font-size:0.95rem; }
+    .plan .plan-qty{ display:block; font-size:0.82rem; color:var(--text-secondary); margin-top:2px; }
+    .plan .plan-price{ display:block; font-size:1.2rem; font-weight:700; color:var(--sage-dark); margin-top:6px; }
+    .paywall-note{ font-size:0.82rem; color:var(--text-secondary); margin-top:14px; }
+
+    /* Activation banner (after paying on Payhip) */
+    .activate-banner{
+      display:none; position:fixed; left:24px; right:24px; bottom:24px; z-index:50;
+      max-width:640px; margin:0 auto; background:#2c3e2c; color:#fff;
+      border-radius:var(--radius-sm); padding:16px 20px; font-size:0.95rem;
+      box-shadow:0 12px 40px rgba(0,0,0,.18); align-items:center; gap:16px; flex-wrap:wrap;
+    }
+    .activate-banner.show{ display:flex; }
+    .activate-banner .btn{ background:var(--caramel); color:#fff; }
+    .activate-banner .btn:hover{ background:var(--caramel-light); color:#6f5232; }
+    .error-box.soon{ background:#f3f7f3; border-color:#dde8dd; color:var(--sage-dark); }
+    .error-box.soon .btn{ background:var(--sage); }
+    .error-box.soon .btn:hover{ background:var(--sage-dark); }
+
     /* Results */
     .results-head{ display:none; margin-top:30px; }
     .results-head.show{ display:block; }
@@ -269,6 +303,14 @@
         <button class="btn" id="retry">Try again</button>
       </div>
 
+      <!-- Paywall: free Lumling used → unlock more -->
+      <div class="paywall" id="paywall" role="region" aria-label="Unlock more Lumlings">
+        <h3>Your free Lumling is done.</h3>
+        <p>Unlock more portraits with a one-time purchase. Your photos stay private — deleted within 24h.</p>
+        <div class="plans" id="plans"></div>
+        <p class="paywall-note">After paying on Payhip, close that tab and refresh this page — your Lumlings activate automatically.</p>
+      </div>
+
       <!-- Results -->
       <div class="results-head" id="resultsHead">
         <h2>Your Lumlings are ready</h2>
@@ -278,6 +320,12 @@
 
       <div class="actions" id="startOverWrap" style="display:none; margin-top:24px;">
         <button class="btn ghost" id="startOver">Start over</button>
+      </div>
+
+      <!-- Activation banner: user paid on Payhip, needs to activate -->
+      <div class="activate-banner" id="activateBanner">
+        <span id="activateText">Purchase detected — activate your Lumlings to keep generating.</span>
+        <button class="btn" id="activateBtn">Activate</button>
       </div>
     </div>
 
@@ -453,6 +501,118 @@
       catch (_) { /* non-fatal */ }
     }
 
+    // ---- paywall: Payhip one-time packs (second Lumling onward) ----
+    // After paying on Payhip, the user comes back, we detect the pending plan
+    // (stored before opening Payhip) and let them activate to unlock credits.
+    const PAY_LINKS = {
+      mini: "https://payhip.com/b/26Iel",       // LumTale Mini Pack — $1.99 / 3 Lumlings
+      bundle: "https://payhip.com/b/7X0ma",     // LumTale Bundle Pack — $3.99 / 10 Lumlings
+      unlimited: "https://payhip.com/b/YVWFZ"   // LumTale Unlimited — $16.99 / 30 days
+    };
+    const PLANS = [
+      { id: 'mini',     name: 'Mini',     qty: 3,  price: '$1.99',  desc: '3 Lumlings' },
+      { id: 'bundle',   name: 'Bundle',   qty: 10, price: '$3.99',  desc: '10 Lumlings' },
+      { id: 'unlimited',name: 'Unlimited',qty: -1, price: '$16.99', desc: 'Unlimited for 30 days' }
+    ];
+    const CREDIT_KEY = 'lumtale_credit';
+    const PENDING_KEY = 'lumtale_pending_plan';
+
+    function getCredit() {
+      try {
+        const c = JSON.parse(localStorage.getItem(CREDIT_KEY) || 'null');
+        if (c && typeof c.remaining === 'number' && c.expires && Date.now() < c.expires) return c;
+        return null;
+      } catch (_) { return null; }
+    }
+    function setCredit(planId, qty, ttlDays) {
+      const c = {
+        plan: planId,
+        remaining: qty === -1 ? 999999 : qty,
+        unlimited: qty === -1,
+        expires: Date.now() + ttlDays * 86400 * 1000
+      };
+      try { localStorage.setItem(CREDIT_KEY, JSON.stringify(c)); } catch (_) {}
+      return c;
+    }
+    function consumeCredit() {
+      const c = getCredit();
+      if (!c) return false;
+      if (c.unlimited) return true; // unlimited: don't decrement
+      c.remaining -= 1;
+      if (c.remaining <= 0) { localStorage.removeItem(CREDIT_KEY); return false; }
+      try { localStorage.setItem(CREDIT_KEY, JSON.stringify(c)); } catch (_) {}
+      return true;
+    }
+    function remainingCreditText() {
+      const c = getCredit();
+      if (!c) return 0;
+      return c.unlimited ? 'Unlimited' : c.remaining;
+    }
+
+    function renderPlans() {
+      const wrap = document.getElementById('plans');
+      wrap.innerHTML = '';
+      PLANS.forEach(p => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'plan';
+        b.innerHTML = '<span class="plan-name">' + p.name + '</span>' +
+          '<span class="plan-qty">' + p.desc + '</span>' +
+          '<span class="plan-price">' + p.price + '</span>';
+        b.addEventListener('click', () => {
+          try { localStorage.setItem(PENDING_KEY, p.id); } catch (_) {}
+          window.open(PAY_LINKS[p.id], '_blank');
+        });
+        wrap.appendChild(b);
+      });
+    }
+
+    function showPaywall() {
+      const box = document.getElementById('paywall');
+      renderPlans();
+      box.classList.add('show');
+    }
+    function hidePaywall() {
+      document.getElementById('paywall').classList.remove('show');
+    }
+
+    function showActivateBanner(text) {
+      document.getElementById('activateText').textContent = text || 'Purchase detected — activate your Lumlings to keep generating.';
+      document.getElementById('activateBanner').classList.add('show');
+    }
+    function hideActivateBanner() {
+      document.getElementById('activateBanner').classList.remove('show');
+    }
+
+    // On load: if the user paid on Payhip (pending plan saved) → offer activation.
+    function handlePendingPlanOnLoad() {
+      const pending = localStorage.getItem(PENDING_KEY);
+      const credit = getCredit();
+      if (pending && !credit) {
+        const plan = PLANS.find(p => p.id === pending);
+        showActivateBanner(plan
+          ? 'Purchase detected — tap Activate to unlock your ' + plan.desc + '.'
+          : 'Purchase detected — activate your Lumlings to keep generating.');
+      }
+    }
+    document.getElementById('activateBtn').addEventListener('click', () => {
+      const pending = localStorage.getItem(PENDING_KEY) || 'mini';
+      const plan = PLANS.find(p => p.id === pending) || PLANS[0];
+      setCredit(plan.id, plan.qty, plan.qty === -1 ? 30 : 365);
+      localStorage.removeItem(PENDING_KEY);
+      hideActivateBanner();
+      hidePaywall();
+      hideError();
+      const msg = plan.qty === -1
+        ? 'Unlimited Lumlings unlocked for 30 days. 🎉'
+        : plan.qty + ' Lumlings unlocked. 🎉';
+      showError(msg);
+      errorBox.classList.remove('soon');
+      generateBtn.disabled = false;
+    });
+
+    handlePendingPlanOnLoad();
+
     function showProgress(msg) {
       progressText.textContent = msg;
       progress.classList.add('show');
@@ -521,10 +681,17 @@
     // ---- main flow ----
     async function run() {
       if (!dataUrl || busy) return;
-      // Free trial guard: 1 free render per browser, then paywall.
+      // Free trial guard: 1 free render per browser, then paywall (or credit).
       if (remainingFree() <= 0) {
-        showError('Your free Lumling is done. Unlock more portraits with a one-time purchase — it also keeps LumTale running and your photos are still deleted within 24h.');
-        return;
+        // If the user has purchased credits, consume one and continue.
+        if (consumeCredit()) {
+          // fall through — user has credits
+        } else {
+          showError('Your free Lumling is done. Unlock more portraits with a one-time purchase — it also keeps LumTale running and your photos are still deleted within 24h.');
+          errorBox.classList.remove('soon');
+          showPaywall();
+          return;
+        }
       }
       busy = true;
       generateBtn.disabled = true;
