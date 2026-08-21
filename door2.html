@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lumling Studio — Fair Cloud AI Portraits That Look Like You | LumTale</title>
-  <meta name="description" content="Create a Lumling Dream, Toon or Studio portrait in LumTale's cloud studio. Identity-preserving, honest about where your photo goes — we never store or train on it.">
+  <meta name="description" content="Create a Lumling Dream, Toon or Studio portrait in LumTale's cloud studio. Identity-preserving, honest about where your photo goes — we never store it; a vetted GPU partner renders it once and discards it.">
   <meta name="keywords" content="fair ai portrait, lumling style, ai avatar like you, identity preserving portrait, honest ai avatar, privacy first avatar">
   <meta name="author" content="LumTale">
   <meta name="robots" content="index, follow">
@@ -36,7 +36,7 @@
         "name": "LumTale",
         "url": "https://lumtale.com",
         "email": "hello@lumtale.com",
-        "description": "LumTale builds private AI avatar tools. Cloud renders are processed by a vetted GPU partner; we never store or train on your photos."
+        "description": "LumTale builds private AI avatar tools. Cloud renders are processed once by a vetted GPU partner for rendering only; we never store your photos."
       }
     ]
   }
@@ -166,6 +166,10 @@
     .error-box p{ margin-bottom:12px; }
     .error-box .btn{ background:#c0392b; }
     .error-box .btn:hover{ background:#a93226; }
+    /* Neutral "coming soon" variant — used for the friendly feature-not-ready message. */
+    .error-box.soon{ background:#f3f7f3; border-color:#dde8dd; color:var(--sage-dark); }
+    .error-box.soon .btn{ background:var(--sage); }
+    .error-box.soon .btn:hover{ background:var(--sage-dark); }
 
     /* Results */
     .results-head{ display:none; margin-top:30px; }
@@ -215,8 +219,10 @@
     <div class="disclosure">
       <span class="lock" aria-hidden="true">🔒</span>
       <span>
-        <strong>Your photo goes to our vetted GPU partner.</strong> We never store or train on it.
-        It's processed on demand and discarded — see our <a href="/privacy.html">Privacy</a> policy for exactly what happens.
+        <strong>Your photo goes to our vetted GPU partner for rendering only.</strong>
+        We never store it on our servers, and we never train on it. Our partner processes it once to
+        create your portrait, then discards it — see our <a href="/privacy.html">Privacy</a> policy for
+        the exact commitments we verified.
       </span>
     </div>
 
@@ -432,6 +438,28 @@
     }
 
     // ---- status / progress helpers ----
+    // ---- daily usage limit (beta budget guard) ----
+    const DAILY_LIMIT = 5;
+    const USAGE_KEY = 'lumtale_daily_usage';
+    function todayKey() {
+      const d = new Date();
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+    function remainingToday() {
+      try {
+        const map = JSON.parse(localStorage.getItem(USAGE_KEY) || '{}');
+        const used = map[todayKey()] || 0;
+        return Math.max(0, DAILY_LIMIT - used);
+      } catch (_) { return DAILY_LIMIT; }
+    }
+    function consumeOne() {
+      try {
+        const map = JSON.parse(localStorage.getItem(USAGE_KEY) || '{}');
+        map[todayKey()] = (map[todayKey()] || 0) + 1;
+        localStorage.setItem(USAGE_KEY, JSON.stringify(map));
+      } catch (_) { /* non-fatal */ }
+    }
+
     function showProgress(msg) {
       progressText.textContent = msg;
       progress.classList.add('show');
@@ -440,6 +468,8 @@
 
     function showError(msg) {
       errorText.textContent = msg;
+      // Show the calm "coming soon" styling for the friendly feature-not-ready message.
+      errorBox.classList.toggle('soon', msg.indexOf('功能即将开放') !== -1);
       errorBox.classList.add('show');
       hideProgress();
     }
@@ -498,19 +528,26 @@
     // ---- main flow ----
     async function run() {
       if (!dataUrl || busy) return;
+      // Daily usage guard (beta budget protection): localStorage per calendar day.
+      if (remainingToday() <= 0) {
+        showError('今日体验次数已用完（每天限 ' + DAILY_LIMIT + ' 次），明天再来吧。');
+        return;
+      }
       busy = true;
       generateBtn.disabled = true;
       hideError();
       hideResults();
 
       try {
-        showProgress('Sending your photo to our secure GPU partner…');
+        showProgress('Generating your Lumling…');
         const data = await apiFetch('/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ image: dataUrl, style: selectedStyle })
         });
-        if (!data.id) throw new Error('We didn’t get a job id. Please try again.');
+        // Replicate returns a prediction id — poll /api/status until it completes.
+        if (!data.id) throw new Error('We didn’t get a result. Please try again.');
+        consumeOne(); // count this generation against the daily limit
         const output = await poll(data.id);
         renderResults(output);
         hideProgress();

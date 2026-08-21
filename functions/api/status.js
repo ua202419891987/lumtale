@@ -16,6 +16,9 @@ const CORS_HEADERS = {
   "cache-control": "no-store",
 };
 
+// Friendly message — never expose raw upstream errors to visitors.
+const FRIENDLY_MESSAGE = "功能即将开放，敬请期待";
+
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
@@ -34,7 +37,7 @@ export async function onRequestGet({ request, env }) {
   const token = env.REPLICATE_API_TOKEN;
   if (!token) {
     return json(
-      { success: false, status: "error", message: "Server not configured: missing REPLICATE_API_TOKEN." },
+      { success: false, error: FRIENDLY_MESSAGE },
       500
     );
   }
@@ -65,8 +68,7 @@ export async function onRequestGet({ request, env }) {
       return json(
         {
           success: false,
-          status: "error",
-          message: `Could not reach the rendering service right now. Please try again in a moment.${detail}`,
+          error: FRIENDLY_MESSAGE,
         },
         502
       );
@@ -93,7 +95,7 @@ export async function onRequestGet({ request, env }) {
 
     if (status === "failed" || status === "canceled") {
       return json(
-        { success: false, status: "failed", message: "Render failed" },
+        { success: false, error: FRIENDLY_MESSAGE },
         200
       );
     }
@@ -106,7 +108,7 @@ export async function onRequestGet({ request, env }) {
     return json({ success: true, status: status || "processing" });
   } catch (e) {
     return json(
-      { success: false, status: "error", message: "Something went wrong while checking your render. Please try again." },
+      { success: false, error: FRIENDLY_MESSAGE },
       500
     );
   }

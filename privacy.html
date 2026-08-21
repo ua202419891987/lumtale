@@ -352,6 +352,20 @@
       <p>Door 2 relies on a vetted third-party GPU processing partner to render higher-quality Lumling portraits. When you upload a photo through Door 2, that photo is transmitted to the partner's infrastructure, processed to create your portrait, and then deleted by the partner according to the retention terms below and in their own policy.</p>
       <p>We selected this partner on the basis of their security posture and data-handling commitments. To be fully transparent, <strong>we encourage you to read their data-use policy before uploading</strong>. Their privacy practices apply to the uploaded image while it is in their hands:</p>
       <p><a class="inline" href="https://replicate.com/privacy" target="_blank" rel="noopener noreferrer">Read the processing partner's privacy policy →</a></p>
+      <h3>What we verified about our partner</h3>
+      <p>We don't ask you to take our word for it. We reviewed the partner's published data policy (last updated April 1, 2026) and verified the following before routing Door 2 through them:</p>
+      <ul class="bullets">
+        <li><strong>Processor, not a seller.</strong> The partner states that it acts as a "processor" or "service provider" when handling customer data, and that it does <em>not</em> sell or share personal information as defined by U.S. state privacy law.</li>
+        <li><strong>"Training data" has a specific meaning — and we never trigger it.</strong> In their policy, "training data" means images a customer uploads to train a model. We only call their rendering (inference) API — never their training API — so your photo is submitted solely to generate your portrait, never to train or fine-tune anything.</li>
+        <li><strong>Retention is tied to providing the service.</strong> Their policy retains customer data only as long as necessary to provide the service. Our render completes in seconds, and the image is discarded when processing finishes.</li>
+      </ul>
+      <div class="callout">
+        <strong>Straight talk:</strong> we can only promise what we control — we never store your photo on our servers, we never sell it, and we never submit it for training. While the image is with our partner, their published policy applies. If you want your photo to never leave your device, use Door 1 instead.
+      </div>
+      <h3>FAQ: "Will my photo be used to train an AI model?"</h3>
+      <p><strong>Short answer:</strong> No — not by us, and not through the Door 2 flow as we operate it.</p>
+      <p>We never train on your photo, and the partner's "training data" definition only covers images uploaded to their training API — which we never call. Your Door 2 upload is sent to their rendering API once, used to create your portrait, and discarded when processing finishes.</p>
+      <p>We can't speak for what any third party might do with data outside our control, which is exactly why we keep our own footprint as close to zero as possible: no storage on our servers, no training, no selling, and a fully local alternative (Door 1) that never uploads anything at all.</p>
       <p class="muted">LumTale remains responsible for choosing and overseeing this partner, and for ensuring your upload is used only to generate your portrait. If you would prefer that your photo never leave your device, use Door 1 instead — no account or upload required.</p>
     </section>
 
