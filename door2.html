@@ -438,26 +438,19 @@
     }
 
     // ---- status / progress helpers ----
-    // ---- daily usage limit (beta budget guard) ----
-    const DAILY_LIMIT = 5;
-    const USAGE_KEY = 'lumtale_daily_usage';
-    function todayKey() {
-      const d = new Date();
-      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    // ---- free trial guard (1 free render per browser, then paywall) ----
+    const FREE_LIMIT = 1;
+    const USAGE_KEY = 'lumtale_total_usage';
+    function usedCount() {
+      try { return parseInt(localStorage.getItem(USAGE_KEY) || '0', 10) || 0; }
+      catch (_) { return 0; }
     }
-    function remainingToday() {
-      try {
-        const map = JSON.parse(localStorage.getItem(USAGE_KEY) || '{}');
-        const used = map[todayKey()] || 0;
-        return Math.max(0, DAILY_LIMIT - used);
-      } catch (_) { return DAILY_LIMIT; }
+    function remainingFree() {
+      return Math.max(0, FREE_LIMIT - usedCount());
     }
     function consumeOne() {
-      try {
-        const map = JSON.parse(localStorage.getItem(USAGE_KEY) || '{}');
-        map[todayKey()] = (map[todayKey()] || 0) + 1;
-        localStorage.setItem(USAGE_KEY, JSON.stringify(map));
-      } catch (_) { /* non-fatal */ }
+      try { localStorage.setItem(USAGE_KEY, String(usedCount() + 1)); }
+      catch (_) { /* non-fatal */ }
     }
 
     function showProgress(msg) {
@@ -528,9 +521,9 @@
     // ---- main flow ----
     async function run() {
       if (!dataUrl || busy) return;
-      // Daily usage guard (beta budget protection): localStorage per calendar day.
-      if (remainingToday() <= 0) {
-        showError('今日体验次数已用完（每天限 ' + DAILY_LIMIT + ' 次），明天再来吧。');
+      // Free trial guard: 1 free render per browser, then paywall.
+      if (remainingFree() <= 0) {
+        showError('Your free Lumling is done. Unlock more portraits with a one-time purchase — it also keeps LumTale running and your photos are still deleted within 24h.');
         return;
       }
       busy = true;
@@ -547,7 +540,7 @@
         });
         // Replicate returns a prediction id — poll /api/status until it completes.
         if (!data.id) throw new Error('We didn’t get a result. Please try again.');
-        consumeOne(); // count this generation against the daily limit
+        consumeOne(); // count this render against the 1-free-then-paywall budget
         const output = await poll(data.id);
         renderResults(output);
         hideProgress();
