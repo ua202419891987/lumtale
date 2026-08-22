@@ -13,7 +13,7 @@
 const MODEL_VERSION = "32402fb5c493d883aa6cf098ce3e4cc80f1fe6871f6ae7f632a8dbde01a3d161";
 
 // Allowed styles. Anything else is rejected with 400 before we touch Replicate.
-const ALLOWED_STYLES = ["dream", "toon", "studio"];
+const ALLOWED_STYLES = ["dream", "toon", "studio", "whimsy"];
 
 // Style prompts — aesthetic described WITHOUT brand names (IP-safe).
 const PROMPTS = {
@@ -23,6 +23,8 @@ const PROMPTS = {
     "3d cartoon character, soft studio lighting, rounded smooth forms, vibrant cheerful colors, friendly expressive face, clean shading, high quality render",
   studio:
     "refined illustrated portrait, soft diffused studio lighting, clean neutral background, tasteful muted editorial color palette, precise confident linework, elegant balanced composition, high detail, premium art piece",
+  whimsy:
+    "hand-painted watercolor storybook illustration, soft muted pastel palette, gentle whimsical linework, cozy pastoral atmosphere, dreamy hand-crafted depth, charming detailed background scenery, warm nostalgic lighting, high detail, masterpiece",
 };
 
 const NEGATIVE =
