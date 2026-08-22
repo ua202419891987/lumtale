@@ -355,6 +355,7 @@
         const msg = (data && data.error) || ("Request failed (" + res.status + ")");
         const err = new Error(msg);
         err.status = res.status;
+        err.code = (data && data.code) || null;
         throw err;
       }
       return data;
@@ -713,7 +714,12 @@
         hideProgress();
       } catch (err) {
         hideProgress();
-        if (err.message === '__timeout__') {
+        // Server-side free quota hit (429 FREE_LIMIT) → show the paywall.
+        if (err.status === 429 && err.code === 'FREE_LIMIT') {
+          showError('Your free Lumling is done. Unlock more portraits with a one-time purchase — it also keeps LumTale running and your photos are still deleted within 24h.');
+          errorBox.classList.remove('soon');
+          showPaywall();
+        } else if (err.message === '__timeout__') {
           showError('Rendering is taking longer than usual. Your photo is safe — hit “Try again” and we’ll start a fresh render.');
         } else if (err.message && /network|fetch|Failed to fetch/i.test(err.message)) {
           showError('We couldn’t reach the server. Check your connection and tap “Try again”.');

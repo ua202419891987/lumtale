@@ -73,11 +73,40 @@ export async function onRequestOptions() {
 
 export async function onRequestPost({ request, env }) {
   const token = env.REPLICATE_API_TOKEN;
+  const kv = env.LUMTALE_KV;
   if (!token) {
     return json(
       { success: false, error: "Server not configured: missing REPLICATE_API_TOKEN." },
       500
     );
+  }
+
+  // --- (0) Server-side free quota guard (hard cap: 1 free render per IP per day) ---
+  // Backs the client-side localStorage guard. CF-Connecting-IP is set by Cloudflare
+  // and cannot be spoofed by the visitor. Cleared caches / new browsers cannot
+  // bypass this. The counter is only written after Replicate accepts the job.
+  if (kv) {
+    const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+    const day = new Date().toISOString().slice(0, 10); // YYYY-MM-DD (UTC)
+    const quotaKey = `free_quota_v1:${day}:${ip}`;
+    try {
+      const used = await kv.get(quotaKey);
+      if (used && Number(used) >= 1) {
+        return json(
+          {
+            success: false,
+            code: "FREE_LIMIT",
+            message:
+              "Your free Lumling is done. Unlock more portraits with a one-time purchase — your photos are still deleted within 24h.",
+          },
+          429
+        );
+      }
+      // Pass the key along so we can write it once Replicate starts the job.
+      request.quotaKey = quotaKey;
+    } catch (_) {
+      // KV failure must NOT block generation (fail open).
+    }
   }
 
   // --- (1) Parse + validate the request body ---
@@ -173,6 +202,14 @@ export async function onRequestPost({ request, env }) {
         { success: false, message: "Render partner unavailable, please retry." },
         502
       );
+    }
+
+    // Replicate accepted the job → now consume the free quota (best-effort).
+    if (kv && request.quotaKey) {
+      try {
+        // TTL ~27h so the key dies after the day; UTC-day key handles rollover.
+        await kv.put(request.quotaKey, "1", { expirationTtl: 60 * 60 * 27 });
+      } catch (_) { /* fail open */ }
     }
 
     return json({ success: true, id: pred.id, status: pred.status || "starting" });
