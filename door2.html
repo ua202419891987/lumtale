@@ -84,6 +84,17 @@
     .disclosure strong{ color:#6f5232; }
     .disclosure a{ color:#a67c52; font-weight:600; text-decoration:underline; }
 
+    /* Promo (OSRS Guru free portrait) banner */
+    .promo-banner{
+      display:none; align-items:center; gap:12px;
+      background:linear-gradient(135deg,#f3f7f3,#eef4ee); border:1px solid #cfe0cf;
+      border-radius:var(--radius-sm); padding:14px 18px; margin-bottom:24px;
+      font-size:0.95rem; color:var(--sage-dark); font-weight:500;
+    }
+    .promo-banner.show{ display:flex; }
+    .promo-banner .gift{ font-size:1.4rem; line-height:1; }
+    .promo-banner b{ color:var(--sage-dark); }
+
     .card{
       background:var(--card); border-radius:var(--radius);
       padding:32px; box-shadow:0 8px 30px var(--shadow); border:1px solid var(--border);
@@ -260,6 +271,11 @@
       </span>
     </div>
 
+    <div class="promo-banner" id="promoBanner" role="status">
+      <span class="gift" aria-hidden="true">🎁</span>
+      <span><b>Free portrait unlocked!</b> Thanks for being an OSRS Guru reader — claim your free Lumling below (one per day).</span>
+    </div>
+
     <div class="card">
       <!-- Step 1: upload -->
       <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Upload a photo">
@@ -390,6 +406,22 @@
     let fileName = '';
     let selectedStyle = 'dream';
     let busy = false;
+
+    // ---- promo detection (OSRS Guru free-portrait campaign) ----
+    let promoActive = false;
+    let promoCode = '';
+    (function detectPromo() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const p = (params.get('promo') || '').trim().toLowerCase();
+        if (p === 'osrsguru') {
+          promoActive = true;
+          promoCode = 'osrsguru';
+          const banner = document.getElementById('promoBanner');
+          if (banner) banner.classList.add('show');
+        }
+      } catch (_) {}
+    })();
 
     // ---- style picker ----
     styleGroup.addEventListener('click', (e) => {
@@ -687,7 +719,9 @@
     async function run() {
       if (!dataUrl || busy) return;
       // Free trial guard: 1 free render per browser, then paywall (or credit).
-      if (remainingFree() <= 0) {
+      // Promo users (OSRS Guru campaign) skip the normal free guard — the server
+      // grants them a separate free bucket. Everyone else: 1 free then paywall/credit.
+      if (!promoActive && remainingFree() <= 0) {
         // If the user has purchased credits, consume one and continue.
         if (consumeCredit()) {
           // fall through — user has credits
@@ -708,7 +742,7 @@
         const data = await apiFetch('/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: dataUrl, style: selectedStyle })
+          body: JSON.stringify({ image: dataUrl, style: selectedStyle, promo: promoCode })
         });
         // Replicate returns a prediction id — poll /api/status until it completes.
         if (!data.id) throw new Error('We didn’t get a result. Please try again.');
@@ -719,8 +753,11 @@
       } catch (err) {
         hideProgress();
         // Server-side free quota hit (429 FREE_LIMIT) → show the paywall.
-        if (err.status === 429 && err.code === 'FREE_LIMIT') {
-          showError('Your free Lumling is done. Unlock more portraits with a one-time purchase — it also keeps LumTale running and your photos are still deleted within 24h.');
+        if (err.status === 429 && (err.code === 'FREE_LIMIT' || err.code === 'PROMO_LIMIT')) {
+          const msg = err.code === 'PROMO_LIMIT'
+            ? 'Your OSRS Guru free portrait is claimed. Unlock more Lumlings with a one-time purchase — your photos are deleted within 24h.'
+            : 'Your free Lumling is done. Unlock more portraits with a one-time purchase — it also keeps LumTale running and your photos are still deleted within 24h.';
+          showError(msg);
           errorBox.classList.remove('soon');
           showPaywall();
         } else if (err.message === '__timeout__') {

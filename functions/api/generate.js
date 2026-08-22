@@ -83,35 +83,7 @@ export async function onRequestPost({ request, env }) {
     );
   }
 
-  // --- (0) Server-side free quota guard (hard cap: 1 free render per IP per day) ---
-  // Backs the client-side localStorage guard. CF-Connecting-IP is set by Cloudflare
-  // and cannot be spoofed by the visitor. Cleared caches / new browsers cannot
-  // bypass this. The counter is only written after Replicate accepts the job.
-  if (kv) {
-    const ip = request.headers.get("CF-Connecting-IP") || "unknown";
-    const day = new Date().toISOString().slice(0, 10); // YYYY-MM-DD (UTC)
-    const quotaKey = `free_quota_v1:${day}:${ip}`;
-    try {
-      const used = await kv.get(quotaKey);
-      if (used && Number(used) >= 1) {
-        return json(
-          {
-            success: false,
-            code: "FREE_LIMIT",
-            message:
-              "Your free Lumling is done. Unlock more portraits with a one-time purchase — your photos are still deleted within 24h.",
-          },
-          429
-        );
-      }
-      // Pass the key along so we can write it once Replicate starts the job.
-      request.quotaKey = quotaKey;
-    } catch (_) {
-      // KV failure must NOT block generation (fail open).
-    }
-  }
-
-  // --- (1) Parse + validate the request body ---
+  // --- (1) Parse + validate the request body (must run first so we can read `promo`) ---
   let body;
   try {
     body = await request.json();
@@ -123,7 +95,39 @@ export async function onRequestPost({ request, env }) {
     return json({ success: false, error: "Invalid request body." }, 400);
   }
 
-  const { image, style } = body;
+  const { image, style, promo } = body;
+
+  // --- (0) Server-side free quota guard (hard cap: 1 free render per IP per day) ---
+  // Backs the client-side localStorage guard. CF-Connecting-IP is set by Cloudflare
+  // and cannot be spoofed by the visitor. Cleared caches / new browsers cannot
+  // bypass this. The counter is only written after Replicate accepts the job.
+  //
+  // Promo ("osrsguru") users get a SEPARATE free bucket, so OSRS Guru readers can
+  // claim one extra free portrait on top of the normal daily free one.
+  const PROMO_CODE = "osrsguru";
+  const isPromo = typeof promo === "string" && promo.trim().toLowerCase() === PROMO_CODE;
+  if (kv) {
+    const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+    const day = new Date().toISOString().slice(0, 10); // YYYY-MM-DD (UTC)
+    const quotaKey = isPromo
+      ? `promo_${PROMO_CODE}:${day}:${ip}`
+      : `free_quota_v1:${day}:${ip}`;
+    try {
+      const used = await kv.get(quotaKey);
+      if (used && Number(used) >= 1) {
+        const code = isPromo ? "PROMO_LIMIT" : "FREE_LIMIT";
+        const message = isPromo
+          ? "Your OSRS Guru free portrait is claimed. Unlock more with a one-time purchase — your photos are deleted within 24h."
+          : "Your free Lumling is done. Unlock more portraits with a one-time purchase — your photos are still deleted within 24h.";
+        return json({ success: false, code, message }, 429);
+      }
+      // Pass the key along so we can write it once Replicate starts the job.
+      request.quotaKey = quotaKey;
+      request.isPromo = isPromo;
+    } catch (_) {
+      // KV failure must NOT block generation (fail open).
+    }
+  }
 
   // (2) Image validation: must be a data URL, image/*, within size budget.
   const parsed = parseImageDataUrl(image);
