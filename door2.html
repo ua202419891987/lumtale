@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lumling Studio — Fair Cloud AI Portraits That Look Like You | LumTale</title>
-  <meta name="description" content="Create a Lumling Dream, Toon or Studio portrait in LumTale's cloud studio. Identity-preserving, honest about where your photo goes — we never store it; a vetted GPU partner renders it once and discards it.">
+  <meta name="description" content="Create a Professional Headshot or Cinematic Portrait in LumTale's cloud studio. Identity-preserving, honest about where your photo goes — we never store it; a vetted GPU partner renders it once and discards it.">
   <meta name="keywords" content="fair ai portrait, lumling style, ai avatar like you, identity preserving portrait, honest ai avatar, privacy first avatar">
   <meta name="author" content="LumTale">
   <meta name="robots" content="index, follow">
@@ -12,12 +12,12 @@
   <link rel="canonical" href="https://lumtale.com/door2.html">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Lumling Studio — Fair Cloud AI Portraits That Look Like You | LumTale">
-  <meta property="og:description" content="Turn your photo into a Lumling Dream, Toon or Studio portrait. Identity-preserving, honest about where your photo goes.">
+  <meta property="og:description" content="Turn your photo into a Professional Headshot or Cinematic Portrait. Identity-preserving, honest about where your photo goes.">
   <meta property="og:url" content="https://lumtale.com/door2.html">
   <meta property="og:site_name" content="LumTale">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Lumling Studio — Fair Cloud AI Portraits That Look Like You | LumTale">
-  <meta name="twitter:description" content="Turn your photo into a Lumling Dream, Toon or Studio portrait. Identity-preserving, honest about where your photo goes.">
+  <meta name="twitter:description" content="Turn your photo into a Professional Headshot or Cinematic Portrait. Identity-preserving, honest about where your photo goes.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -142,11 +142,6 @@
     .style-pill .name small{ color:var(--caramel); font-weight:600; }
     .style-pill .desc{ display:block; font-size:0.82rem; color:var(--text-secondary); margin-top:3px; }
 
-    /* Framing toggle (Whimsy) — compact inline pills */
-    .styles-inline{ display:flex; gap:10px; flex-wrap:wrap; }
-    .framing-pill{ flex:1 1 160px; }
-    .framing{ margin-top:4px; }
-
     .actions{ display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-top:26px; }
     .btn{
       font-family:inherit; font-size:1rem; font-weight:600; border-radius:var(--radius-sm);
@@ -260,7 +255,7 @@
 
     <h1>Meet your <span>Lumling</span>.<br>In the cloud.</h1>
     <p class="lead">
-      Pick a Lumling style, drop in a photo, and we'll paint a portrait that keeps
+      Pick a style, drop in a photo, and we'll craft a portrait that keeps
       <strong>your</strong> face your face — no whitening, no warping, no "makeover."
     </p>
 
@@ -291,40 +286,17 @@
         </span>
       </div>
 
-      <!-- Step 2: style picker -->
+      <!-- Step 2: style — two high-fidelity styles -->
       <label class="field" for="styles">Choose your Lumling style</label>
       <div class="styles" id="styles" role="radiogroup" aria-label="Lumling style">
-        <button type="button" class="style-pill" data-style="dream" aria-pressed="true">
-          <span class="name">Dream <small>· Lumling Dream</small></span>
-          <span class="desc">Soft, painterly illustration with gentle warm light.</span>
+        <button type="button" class="style-pill" data-style="headshot" aria-pressed="true">
+          <span class="name">Professional Headshot</span>
+          <span class="desc">Natural studio light, clean background — a polished, highly faithful work avatar.</span>
         </button>
-        <button type="button" class="style-pill" data-style="toon" aria-pressed="false">
-          <span class="name">Toon <small>· Lumling Toon</small></span>
-          <span class="desc">Friendly 3D cartoon with rounded, cheerful shapes.</span>
+        <button type="button" class="style-pill" data-style="cinematic" aria-pressed="false">
+          <span class="name">Cinematic Portrait</span>
+          <span class="desc">Dramatic movie light, moody atmosphere — a high-fashion, highly faithful portrait.</span>
         </button>
-        <button type="button" class="style-pill" data-style="studio" aria-pressed="false">
-          <span class="name">Studio <small>· Lumling Studio</small></span>
-          <span class="desc">Polished, illustrative portrait with richer detail.</span>
-        </button>
-        <button type="button" class="style-pill" data-style="whimsy" aria-pressed="false">
-          <span class="name">Whimsy <small>· Storybook Dream</small></span>
-          <span class="desc">Hand-painted fairy-tale style, warm &amp; dreamy — headshot or full body.</span>
-        </button>
-      </div>
-
-      <!-- Framing toggle (Whimsy only) -->
-      <div class="framing" id="framingWrap" hidden>
-        <label class="field" for="framingGroup">Framing</label>
-        <div class="styles styles-inline" id="framingGroup" role="radiogroup" aria-label="Framing">
-          <button type="button" class="style-pill framing-pill" data-framing="headshot" aria-pressed="true">
-            <span class="name">Headshot</span>
-            <span class="desc">Close-up portrait, face-focused.</span>
-          </button>
-          <button type="button" class="style-pill framing-pill" data-framing="fullbody" aria-pressed="false">
-            <span class="name">Full Body</span>
-            <span class="desc">Full-length scene, more story.</span>
-          </button>
-        </div>
       </div>
 
       <div class="actions">
@@ -424,12 +396,8 @@
 
     let dataUrl = null;
     let fileName = '';
-    let selectedStyle = 'dream';
-    let selectedFraming = 'headshot';
+    let selectedStyle = 'headshot';
     let busy = false;
-
-    const framingWrap = document.getElementById('framingWrap');
-    const framingGroup = document.getElementById('framingGroup');
 
     // ---- promo detection (OSRS Guru free-portrait campaign) ----
     let promoActive = false;
@@ -453,18 +421,6 @@
       if (!pill) return;
       selectedStyle = pill.dataset.style;
       styleGroup.querySelectorAll('.style-pill').forEach(p => {
-        p.setAttribute('aria-pressed', String(p === pill));
-      });
-      // Framing toggle only makes sense for whimsy.
-      framingWrap.hidden = selectedStyle !== 'whimsy';
-    });
-
-    // ---- framing picker (Whimsy) ----
-    framingGroup.addEventListener('click', (e) => {
-      const pill = e.target.closest('.framing-pill');
-      if (!pill) return;
-      selectedFraming = pill.dataset.framing;
-      framingGroup.querySelectorAll('.framing-pill').forEach(p => {
         p.setAttribute('aria-pressed', String(p === pill));
       });
     });
@@ -778,7 +734,7 @@
         const data = await apiFetch('/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: dataUrl, style: selectedStyle, framing: selectedFraming, promo: promoCode })
+          body: JSON.stringify({ image: dataUrl, style: selectedStyle, promo: promoCode })
         });
         // Replicate returns a prediction id — poll /api/status until it completes.
         if (!data.id) throw new Error('We didn’t get a result. Please try again.');
