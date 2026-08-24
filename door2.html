@@ -142,6 +142,11 @@
     .style-pill .name small{ color:var(--caramel); font-weight:600; }
     .style-pill .desc{ display:block; font-size:0.82rem; color:var(--text-secondary); margin-top:3px; }
 
+    /* Framing toggle (Whimsy) — compact inline pills */
+    .styles-inline{ display:flex; gap:10px; flex-wrap:wrap; }
+    .framing-pill{ flex:1 1 160px; }
+    .framing{ margin-top:4px; }
+
     .actions{ display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-top:26px; }
     .btn{
       font-family:inherit; font-size:1rem; font-weight:600; border-radius:var(--radius-sm);
@@ -303,8 +308,23 @@
         </button>
         <button type="button" class="style-pill" data-style="whimsy" aria-pressed="false">
           <span class="name">Whimsy <small>· Storybook Dream</small></span>
-          <span class="desc">Hand-painted watercolor storybook style, warm &amp; dreamy.</span>
+          <span class="desc">Hand-painted fairy-tale style, warm &amp; dreamy — headshot or full body.</span>
         </button>
+      </div>
+
+      <!-- Framing toggle (Whimsy only) -->
+      <div class="framing" id="framingWrap" hidden>
+        <label class="field" for="framingGroup">Framing</label>
+        <div class="styles styles-inline" id="framingGroup" role="radiogroup" aria-label="Framing">
+          <button type="button" class="style-pill framing-pill" data-framing="headshot" aria-pressed="true">
+            <span class="name">Headshot</span>
+            <span class="desc">Close-up portrait, face-focused.</span>
+          </button>
+          <button type="button" class="style-pill framing-pill" data-framing="fullbody" aria-pressed="false">
+            <span class="name">Full Body</span>
+            <span class="desc">Full-length scene, more story.</span>
+          </button>
+        </div>
       </div>
 
       <div class="actions">
@@ -405,7 +425,11 @@
     let dataUrl = null;
     let fileName = '';
     let selectedStyle = 'dream';
+    let selectedFraming = 'headshot';
     let busy = false;
+
+    const framingWrap = document.getElementById('framingWrap');
+    const framingGroup = document.getElementById('framingGroup');
 
     // ---- promo detection (OSRS Guru free-portrait campaign) ----
     let promoActive = false;
@@ -429,6 +453,18 @@
       if (!pill) return;
       selectedStyle = pill.dataset.style;
       styleGroup.querySelectorAll('.style-pill').forEach(p => {
+        p.setAttribute('aria-pressed', String(p === pill));
+      });
+      // Framing toggle only makes sense for whimsy.
+      framingWrap.hidden = selectedStyle !== 'whimsy';
+    });
+
+    // ---- framing picker (Whimsy) ----
+    framingGroup.addEventListener('click', (e) => {
+      const pill = e.target.closest('.framing-pill');
+      if (!pill) return;
+      selectedFraming = pill.dataset.framing;
+      framingGroup.querySelectorAll('.framing-pill').forEach(p => {
         p.setAttribute('aria-pressed', String(p === pill));
       });
     });
@@ -742,7 +778,7 @@
         const data = await apiFetch('/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: dataUrl, style: selectedStyle, promo: promoCode })
+          body: JSON.stringify({ image: dataUrl, style: selectedStyle, framing: selectedFraming, promo: promoCode })
         });
         // Replicate returns a prediction id — poll /api/status until it completes.
         if (!data.id) throw new Error('We didn’t get a result. Please try again.');

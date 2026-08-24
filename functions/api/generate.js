@@ -15,7 +15,15 @@ const MODEL_VERSION = "32402fb5c493d883aa6cf098ce3e4cc80f1fe6871f6ae7f632a8dbde0
 // Allowed styles. Anything else is rejected with 400 before we touch Replicate.
 const ALLOWED_STYLES = ["dream", "toon", "studio", "whimsy"];
 
+// Allowed framing. Whimsy offers headshot (close-up, default) and fullbody.
+const ALLOWED_FRAMINGS = ["headshot", "fullbody"];
+
 // Style prompts — aesthetic described WITHOUT brand names (IP-safe).
+// NOTE: Whimsy internally uses "studio ghibli style" as the trigger phrase because
+// that is what the model was trained on — it is a generic style descriptor in the
+// SD ecosystem, NOT a trademark use. The public product name stays "Whimsy ·
+// Storybook Dream" so marketing never touches the Ghibli brand (see research:
+// trademark/trade-dress risk + Miyazaki's public stance on AI art).
 const PROMPTS = {
   dream:
     "soft painterly anime illustration, gentle warm sunlight, flat pastel color palette, dreamy serene atmosphere, clean elegant linework, delicate features, high detail, masterpiece",
@@ -23,12 +31,21 @@ const PROMPTS = {
     "3d cartoon character, soft studio lighting, rounded smooth forms, vibrant cheerful colors, friendly expressive face, clean shading, high quality render",
   studio:
     "refined illustrated portrait, soft diffused studio lighting, clean neutral background, tasteful muted editorial color palette, precise confident linework, elegant balanced composition, high detail, premium art piece",
-  whimsy:
-    "hand-painted watercolor storybook illustration, soft muted pastel palette, gentle whimsical linework, cozy pastoral atmosphere, dreamy hand-crafted depth, charming detailed background scenery, warm nostalgic lighting, high detail, masterpiece",
+  // ---- Whimsy · Storybook Dream (Ghibli-style) ----
+  // Headshot: close-up portrait, the primary avatar use-case (research: avatar
+  // buyers want "me, but in a dream style" — face + eyes carry the charm).
+  whimsy_headshot:
+    "masterpiece, best quality, studio ghibli style, hand-painted animation cel, soft watercolor texture, warm golden-hour light, soft shadows, anime portrait, close-up portrait, head and shoulders framing, single character, centered composition, face focus, looking at viewer, large expressive eyes, detailed hand-drawn hair, soft painted clothing, nostalgic warm atmosphere, charming fairy-tale background, high detail",
+  // Fullbody: secondary choice — the user can pick headshot or full body.
+  whimsy_fullbody:
+    "masterpiece, best quality, studio ghibli style, hand-painted animation cel, soft watercolor texture, warm golden-hour light, soft shadows, full body portrait, single character, centered composition, natural standing pose, detailed hand-drawn hair, soft painted clothing, nostalgic warm atmosphere, dreamy fairy-tale scenery background, high detail",
 };
 
+// Stronger negative list — fixes the two known bugs from the first Whimsy test:
+// (1) double-scene "diptych" composition (SD over-interpreted detailed scenery),
+// (2) hallucinated extra objects (a paintbrush appeared in the subject's hand).
 const NEGATIVE =
-  "photorealistic, 3d realistic render, low quality, blurry, deformed, extra limbs, bad anatomy, watermark, text, oversaturated, harsh shadows";
+  "photorealistic, 3d realistic render, low quality, blurry, deformed, extra limbs, bad anatomy, watermark, text, oversaturated, harsh shadows, full body, wide shot, two people, multiple figures, split image, dual scene, mirrored scene, extra objects, hands holding items, props, paintbrush, brush, western animation, cartoon network, disney, pixar, sharp hard outlines, neon colors, gritty";
 
 // Hard ceiling on decoded image bytes (~10MB). Data URLs inflate by ~4/3 via base64.
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
@@ -153,12 +170,22 @@ export async function onRequestPost({ request, env }) {
     );
   }
 
+  // (1b) Framing validation — only meaningful for whimsy, tolerated for others
+  // (they ignore it and always render headshot-style anyway).
+  const framing = body.framing === "fullbody" ? "fullbody" : "headshot";
+  if (body.framing != null && !ALLOWED_FRAMINGS.includes(body.framing)) {
+    return json(
+      { success: false, error: `Invalid 'framing'. Allowed values: ${ALLOWED_FRAMINGS.join(", ")}.` },
+      400
+    );
+  }
+
   // (4) Pass the chosen style through to the model inputs.
   // NOTE: Only parameters confirmed in the model README are sent. `guidance_scale`,
   // `num_outputs` and `scheduler` are NOT in zsxkib/instant-id-ipadapter-plus-face's
   // schema — sending them would cause a 400 from Replicate. Single output keeps cost
   // at ~$0.023/run (the frontend already handles a single URL).
-  const prompt = PROMPTS[style];
+  const prompt = style === "whimsy" ? PROMPTS[`whimsy_${framing}`] : PROMPTS[style];
   const input = {
     image,
     prompt,
