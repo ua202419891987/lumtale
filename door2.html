@@ -95,6 +95,14 @@
     .promo-banner .gift{ font-size:1.4rem; line-height:1; }
     .promo-banner b{ color:var(--sage-dark); }
 
+    /* Admin badge — shown when the owner unlocks admin mode (unlimited). */
+    .admin-badge{
+      display:none; align-items:center; gap:8px;
+      background:#2c3e2c; color:#fff; border-radius:999px;
+      padding:8px 14px; font-size:0.85rem; font-weight:600; margin-bottom:24px;
+    }
+    .admin-badge.show{ display:inline-flex; }
+
     .card{
       background:var(--card); border-radius:var(--radius);
       padding:32px; box-shadow:0 8px 30px var(--shadow); border:1px solid var(--border);
@@ -141,6 +149,19 @@
     .style-pill .name{ display:block; font-weight:600; color:var(--text); font-size:1rem; }
     .style-pill .name small{ color:var(--caramel); font-weight:600; }
     .style-pill .desc{ display:block; font-size:0.82rem; color:var(--text-secondary); margin-top:3px; }
+
+    /* Gender picker — only shown for the anime style. */
+    .gender-wrap{ display:none; margin-top:14px; }
+    .gender-wrap.show{ display:block; }
+    .gender-pills{ display:flex; gap:10px; }
+    .gender-pill{
+      flex:1; min-width:0; cursor:pointer; font-family:inherit;
+      border:1.5px solid var(--border); border-radius:var(--radius-sm); background:#fff;
+      padding:11px 14px; transition:border-color .2s, background .2s;
+    }
+    .gender-pill:hover{ border-color:var(--sage); }
+    .gender-pill[aria-pressed="true"]{ border-color:var(--sage); background:#eef4ee; }
+    .gender-pill .g-icon{ font-size:1.1rem; margin-right:6px; }
 
     .actions{ display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-top:26px; }
     .btn{
@@ -273,8 +294,10 @@
 
     <div class="promo-banner" id="promoBanner" role="status">
       <span class="gift" aria-hidden="true">🎁</span>
-      <span><b>Free portrait unlocked!</b> Thanks for being an OSRS Guru reader — claim your free Lumling below (one per day).</span>
+      <span><b>Free portrait unlocked!</b> Thanks for being an OSRS Guru reader — claim your free Lumling below (one free portrait, yours to keep).</span>
     </div>
+
+    <div class="admin-badge" id="adminBadge">🛠️ Admin mode — unlimited renders</div>
 
     <div class="card">
       <!-- Step 1: upload -->
@@ -291,12 +314,25 @@
       <div class="styles" id="styles" role="radiogroup" aria-label="Lumling style">
         <button type="button" class="style-pill" data-style="headshot" aria-pressed="true">
           <span class="name">Professional Headshot</span>
-          <span class="desc">Natural studio light, clean background — a polished, highly faithful work avatar.</span>
+          <span class="desc">Clean white studio light, natural skin — a polished, highly faithful work avatar.</span>
         </button>
-        <button type="button" class="style-pill" data-style="cinematic" aria-pressed="false">
-          <span class="name">Cinematic Portrait</span>
-          <span class="desc">Dramatic movie light, moody atmosphere — a high-fashion, highly faithful portrait.</span>
+        <button type="button" class="style-pill" data-style="anime" aria-pressed="false">
+          <span class="name">Modern Anime Portrait</span>
+          <span class="desc">Hand-drawn key-visual style (Makoto Shinkai feel) — pick Male / Female below.</span>
         </button>
+      </div>
+
+      <!-- Gender picker — only shown for the anime style. -->
+      <div class="gender-wrap" id="genderWrap" role="radiogroup" aria-label="Gender for anime style">
+        <label class="field" for="genderPills">For the anime style</label>
+        <div class="gender-pills" id="genderPills">
+          <button type="button" class="gender-pill" data-gender="male" aria-pressed="true">
+            <span class="g-icon" aria-hidden="true">♂</span> Male
+          </button>
+          <button type="button" class="gender-pill" data-gender="female" aria-pressed="false">
+            <span class="g-icon" aria-hidden="true">♀</span> Female
+          </button>
+        </div>
       </div>
 
       <div class="actions">
@@ -397,6 +433,7 @@
     let dataUrl = null;
     let fileName = '';
     let selectedStyle = 'headshot';
+    let selectedGender = 'male';
     let busy = false;
 
     // ---- promo detection (OSRS Guru free-portrait campaign) ----
@@ -415,12 +452,54 @@
       } catch (_) {}
     })();
 
+    // ---- admin mode (owner only): unlimited renders ----
+    // Unlock via ?admin=1 → paste the LUMTALE_ADMIN_TOKEN → stored in
+    // localStorage → sent as `x-admin-token` on every request. The server
+    // bypasses ALL quota checks when the token matches.
+    const ADMIN_TOKEN_KEY = 'lumtale_admin_token';
+    function getAdminToken() {
+      try { return localStorage.getItem(ADMIN_TOKEN_KEY) || ''; } catch (_) { return ''; }
+    }
+    function setAdminToken(t) {
+      try { localStorage.setItem(ADMIN_TOKEN_KEY, t); } catch (_) {}
+    }
+    let adminActive = !!getAdminToken();
+    (function detectAdmin() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('admin') === '1' && !adminActive) {
+          const t = (window.prompt('Admin token:') || '').trim();
+          if (t) { setAdminToken(t); adminActive = true; }
+        }
+        if (adminActive) {
+          const badge = document.getElementById('adminBadge');
+          if (badge) badge.classList.add('show');
+        }
+      } catch (_) {}
+    })();
+
     // ---- style picker ----
+    const genderWrap = document.getElementById('genderWrap');
+    const genderGroup = document.getElementById('genderPills');
+    function syncGenderVisibility() {
+      // Gender picker only matters for the anime style.
+      if (genderWrap) genderWrap.classList.toggle('show', selectedStyle === 'anime');
+    }
+    syncGenderVisibility();
     styleGroup.addEventListener('click', (e) => {
       const pill = e.target.closest('.style-pill');
       if (!pill) return;
       selectedStyle = pill.dataset.style;
       styleGroup.querySelectorAll('.style-pill').forEach(p => {
+        p.setAttribute('aria-pressed', String(p === pill));
+      });
+      syncGenderVisibility();
+    });
+    genderGroup.addEventListener('click', (e) => {
+      const pill = e.target.closest('.gender-pill');
+      if (!pill) return;
+      selectedGender = pill.dataset.gender;
+      genderGroup.querySelectorAll('.gender-pill').forEach(p => {
         p.setAttribute('aria-pressed', String(p === pill));
       });
     });
@@ -713,7 +792,8 @@
       // Free trial guard: 1 free render per browser, then paywall (or credit).
       // Promo users (OSRS Guru campaign) skip the normal free guard — the server
       // grants them a separate free bucket. Everyone else: 1 free then paywall/credit.
-      if (!promoActive && remainingFree() <= 0) {
+      // Admin (owner) skips the guard entirely — unlimited.
+      if (!adminActive && !promoActive && remainingFree() <= 0) {
         // If the user has purchased credits, consume one and continue.
         if (consumeCredit()) {
           // fall through — user has credits
@@ -731,14 +811,18 @@
 
       try {
         showProgress('Generating your Lumling…');
+        const adminToken = adminActive ? getAdminToken() : '';
         const data = await apiFetch('/api/generate', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: dataUrl, style: selectedStyle, promo: promoCode })
+          headers: Object.assign(
+            { 'Content-Type': 'application/json' },
+            adminToken ? { 'x-admin-token': adminToken } : {}
+          ),
+          body: JSON.stringify({ image: dataUrl, style: selectedStyle, gender: selectedGender, promo: promoCode })
         });
         // Replicate returns a prediction id — poll /api/status until it completes.
         if (!data.id) throw new Error('We didn’t get a result. Please try again.');
-        consumeOne(); // count this render against the 1-free-then-paywall budget
+        if (!adminActive) consumeOne(); // count this render against the 1-free-then-paywall budget
         const output = await poll(data.id);
         renderResults(output);
         hideProgress();

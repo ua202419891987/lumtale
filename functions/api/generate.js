@@ -12,28 +12,44 @@
 // (POST /v1/predictions with `version`) is the reliable path.
 const MODEL_VERSION = "32402fb5c493d883aa6cf098ce3e4cc80f1fe6871f6ae7f632a8dbde01a3d161";
 
-// Two photorealistic portrait styles — "headshot" and "cinematic". Per product
-// decision 2026-08-25: drop the Ghibli/whimsy direction; US-market research shows
-// the most popular and identity-preserving outputs are real-photo looks. InstantID
-// locks the face (high weight) while only lighting/background/wardrobe change.
-const ALLOWED_STYLES = ["headshot", "cinematic"];
+// Two portrait styles — "headshot" (real photo) and "anime" (modern semi-realistic
+// Japanese illustration). Per product decision 2026-08-25 (v3): keep the clean-white
+// Professional Headshot (the "white-studio" look the user picked), and switch the
+// dark Cinematic Portrait to a modern Anime portrait, gendered via the `gender`
+// field. InstantID still locks the user's face; for anime we lower its weight and
+// raise the ipadapter weight so the style template wins over the face map.
+const ALLOWED_STYLES = ["headshot", "anime"];
+const ALLOWED_GENDERS = ["male", "female"];
 
-// Style prompts — photorealistic, identity-preserving (2026-08-25 rework).
-// Research: US market's top-paying avatar types are (1) Professional Headshot
-// (Aragon $10M ARR) and (2) Cinematic Portrait (PhotoAI $1.6M ARR). Both are
-// "lock the face, change only lighting/background/wardrobe" — the opposite of
-// the earlier stylized/ghibli direction which read as a "Meitu filter".
+// Style prompts — 2026-08-25 v3 (user picked the white-studio reference and the
+// Makoto-Shinkai-style anime illustration; we drop the dark cinematic direction).
+// Beauty directives that carry over from v2: ① smooth the forehead / reduce
+// wrinkles, ② slightly enlarge the eyes for a more flattering look, ③ KEEP the
+// original hairstyle & hair length, ④ hard-block watermarks/text. The headshot
+// stays on a clean white studio backdrop. The anime prompt is split by gender so
+// the model draws the right body / wardrobe / facial proportions.
 const PROMPTS = {
   headshot:
-    "professional headshot, highly detailed natural skin texture, preserve facial identity, soft studio lighting, clean neutral background, shallow depth of field, sharp focus, 8k, photorealistic, masterpiece",
-  cinematic:
-    "cinematic portrait, highly detailed natural skin texture, preserve facial identity, dramatic rembrandt lighting, moody atmospheric background, shallow depth of field, film grain, shot on 85mm, photorealistic, masterpiece",
+    "professional headshot, highly detailed natural skin texture with subtle smoothing, smooth wrinkle-free forehead, slightly enlarged bright expressive eyes, preserve original hairstyle and hair length, no watermark, no text overlay, no logo, no signature, soft studio lighting, clean white studio background with subtle warm-gray gradient, shallow depth of field, sharp focus, 8k, photorealistic, masterpiece",
 };
 
-// Photorealistic negative list: block ugly faces and any anime/illustration/cartoon
-// feel, but do NOT ban photorealistic / 3d render (we want real photos, not art).
+// Modern semi-realistic Japanese anime portrait. GENDER AWARE — body, wardrobe
+// and styling differ by gender. Inspired by the user's reference (Makoto Shinkai
+// / modern anime key visual): large expressive eyes, refined features, painterly
+// watercolor-style background, vibrant color grade, cel shading, intricate hair.
+const ANIME_PROMPTS = {
+  male:
+    "modern anime key visual portrait, handsome young man, semi-realistic Japanese illustration style, large expressive detailed eyes, refined masculine features, soft cinematic lighting, painterly watercolor background, intricate hair details, cel shading, vibrant colors, high quality anime artwork, smooth skin, no watermark, no text, no logo, no signature, masterpiece, illustration",
+  female:
+    "modern anime key visual portrait, beautiful young woman, semi-realistic Japanese illustration style, large expressive detailed eyes, soft refined feminine features, gentle expression, soft cinematic lighting, painterly watercolor background, intricate hair details, cel shading, vibrant colors, high quality anime artwork, smooth skin, no watermark, no text, no logo, no signature, masterpiece, illustration",
+};
+
+// Negative list shared by both styles. We removed the "anime, illustration,
+// cartoon, painting, sketch, disney" bans because the anime style is now a
+// first-class style — keeping those here would sabotage it. Watermark, low
+// quality, deformed anatomy and aging marks stay banned across the board.
 const NEGATIVE =
-  "deformed, bad anatomy, extra limbs, watermark, text, blurry, low quality, oversaturated, harsh shadows, cartoon, anime, illustration, painting, sketch, disney, 3d render, plastic skin, airbrushed, doll-like, mutated hands, extra fingers, double exposure";
+  "deformed, bad anatomy, extra limbs, watermark, text, logo, signature, stamp, date overlay, frame, border, stock photo watermark, gettyimages, shutterstock, alamy, adobe stock, blurry, low quality, oversaturated, harsh shadows, 3d render, plastic skin, airbrushed, doll-like, mutated hands, extra fingers, double exposure, wrinkled forehead, frown lines, tired eyes, sagging skin, western cartoon, chibi";
 
 // Hard ceiling on decoded image bytes (~10MB). Data URLs inflate by ~4/3 via base64.
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
@@ -100,23 +116,33 @@ export async function onRequestPost({ request, env }) {
     return json({ success: false, error: "Invalid request body." }, 400);
   }
 
-  const { image, style, promo } = body;
+  const { image, style, gender, promo } = body;
 
-  // --- (0) Server-side free quota guard (hard cap: 1 free render per IP per day) ---
-  // Backs the client-side localStorage guard. CF-Connecting-IP is set by Cloudflare
-  // and cannot be spoofed by the visitor. Cleared caches / new browsers cannot
-  // bypass this. The counter is only written after Replicate accepts the job.
+  // --- (0) Admin bypass: requests carrying the admin token skip ALL quota
+  // checks (unlimited for the owner). The token lives in the
+  // LUMTALE_ADMIN_TOKEN environment variable; the browser sends it via the
+  // `x-admin-token` header after the owner unlocks admin mode on door2.html.
+  const ADMIN_TOKEN = env.LUMTALE_ADMIN_TOKEN;
+  const reqAdmin = request.headers.get("x-admin-token") || "";
+  const isAdmin = !!ADMIN_TOKEN && reqAdmin === ADMIN_TOKEN;
+
+  // --- (0) Free-quota guard: ONE free render per IP, ever (not per day).
+  // Backs the client-side localStorage guard. CF-Connecting-IP is set by
+  // Cloudflare and cannot be spoofed by the visitor. Cleared caches / new
+  // browsers cannot bypass this. The counter is only written after Replicate
+  // accepts the job. Admin requests skip this entirely.
   //
-  // Promo ("osrsguru") users get a SEPARATE free bucket, so OSRS Guru readers can
-  // claim one extra free portrait on top of the normal daily free one.
+  // Promo ("osrsguru") users get a SEPARATE one-time bucket, so OSRS Guru
+  // readers can claim one extra free portrait on top of the normal one.
   const PROMO_CODE = "osrsguru";
   const isPromo = typeof promo === "string" && promo.trim().toLowerCase() === PROMO_CODE;
-  if (kv) {
+  if (kv && !isAdmin) {
     const ip = request.headers.get("CF-Connecting-IP") || "unknown";
-    const day = new Date().toISOString().slice(0, 10); // YYYY-MM-DD (UTC)
+    // One-time keys: no date component, so a given IP gets exactly 1 render
+    // from the free bucket and 1 from the promo bucket, ever.
     const quotaKey = isPromo
-      ? `promo_${PROMO_CODE}:${day}:${ip}`
-      : `free_quota_v1:${day}:${ip}`;
+      ? `promo_${PROMO_CODE}:${ip}`
+      : `free_quota_v1:${ip}`;
     try {
       const used = await kv.get(quotaKey);
       if (used && Number(used) >= 1) {
@@ -158,12 +184,33 @@ export async function onRequestPost({ request, env }) {
     );
   }
 
+  // (1c) Gender validation: anime style REQUIRES a gender (male/female) so the
+  // model draws the right body, wardrobe and facial proportions. Headshot
+  // doesn't need it (the face is locked; lighting is neutral).
+  let effectiveGender = null;
+  if (style === "anime") {
+    if (typeof gender !== "string" || !ALLOWED_GENDERS.includes(gender)) {
+      return json(
+        {
+          success: false,
+          error: `Anime style requires 'gender' = one of ${ALLOWED_GENDERS.join(", ")}.`,
+        },
+        400
+      );
+    }
+    effectiveGender = gender;
+  }
+
   // (1b) Pass the chosen style through to the model inputs.
   // NOTE: Only parameters confirmed in the model README are sent. `guidance_scale`,
   // `num_outputs` and `scheduler` are NOT in zsxkib/instant-id-ipadapter-plus-face's
   // schema — sending them would cause a 400 from Replicate. Single output keeps cost
   // at ~$0.023/run (the frontend already handles a single URL).
-  const prompt = PROMPTS[style];
+  const prompt = style === "anime" ? ANIME_PROMPTS[effectiveGender] : PROMPTS[style];
+  // For anime we lower instantid weight and raise ipadapter weight so the style
+  // template (Shinkai-style illustration) wins over the raw face map; for the
+  // headshot we keep the high-face-lock setting so the user looks like themselves.
+  const isAnime = style === "anime";
   const input = {
     image,
     prompt,
@@ -171,8 +218,8 @@ export async function onRequestPost({ request, env }) {
     width: 1024,
     height: 1024,
     num_inference_steps: 30,
-    instantid_weight: 0.9, // lock the face to the subject; only lighting/bg/wardrobe change
-    ipadapter_weight: 0.7,
+    instantid_weight: isAnime ? 0.7 : 0.9,
+    ipadapter_weight: isAnime ? 0.85 : 0.7,
     ipadapter_weight_type: "style transfer precise",
     seed: body.seed != null ? body.seed : Math.floor(Math.random() * 1e9),
   };
@@ -218,8 +265,8 @@ export async function onRequestPost({ request, env }) {
     // Replicate accepted the job → now consume the free quota (best-effort).
     if (kv && request.quotaKey) {
       try {
-        // TTL ~27h so the key dies after the day; UTC-day key handles rollover.
-        await kv.put(request.quotaKey, "1", { expirationTtl: 60 * 60 * 27 });
+        // No TTL → the one-time key persists (1 free render per IP, ever).
+        await kv.put(request.quotaKey, "1");
       } catch (_) { /* fail open */ }
     }
 
